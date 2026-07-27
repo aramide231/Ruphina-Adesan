@@ -157,15 +157,6 @@ function Home() {
             <span>Service time · 12 noon</span>
           </p>
 
-          <figure className="sabbath__flyer">
-            <img
-              src={`${process.env.PUBLIC_URL}/brand/sabbath-flyer.png`}
-              alt="Wisdom Ministries UK Sabbath Fellowship invitation featuring Evang. Dr. Ruphina Ojo Adesan"
-              loading="lazy"
-              decoding="async"
-            />
-          </figure>
-
           <nav className="socials" aria-label="Social media">
             {socials.map((social) => (
               <a
@@ -180,13 +171,24 @@ function Home() {
             ))}
           </nav>
 
+          <p className="sabbath__linktree-wrap">
+            <Link className="sabbath__linktree-btn" to="/links">
+              Open link tree
+            </Link>
+          </p>
+
+          <figure className="sabbath__flyer">
+            <img
+              src={`${process.env.PUBLIC_URL}/brand/sabbath-flyer.png`}
+              alt="Wisdom Ministries UK Sabbath Fellowship invitation featuring Evang. Dr. Ruphina Ojo Adesan"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+
           <p className="sabbath__note">
             She also leads a daily health challenge, inviting others into steadier,
-            healthier living. All platforms live on her{' '}
-            <Link className="sabbath__inline-link" to="/links">
-              link tree
-            </Link>
-            .
+            healthier living.
           </p>
         </div>
       </section>

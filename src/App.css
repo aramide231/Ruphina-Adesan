@@ -350,7 +350,7 @@ body {
 }
 
 .sabbath__flyer {
-  margin: 0;
+  margin: 1.75rem 0 0;
 }
 
 .sabbath__flyer img {
@@ -364,7 +364,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem 1.15rem;
-  margin: 1.75rem 0 0;
+  margin: 1.5rem 0 0;
 }
 
 .socials__link {
@@ -389,14 +389,42 @@ body {
   outline-offset: 4px;
 }
 
-.sabbath__note {
-  margin-top: 1.75rem;
+.sabbath__linktree-wrap {
+  margin: 1.35rem 0 0;
 }
 
-.sabbath__inline-link {
+.sabbath__linktree-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 1.4rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--gold);
+  border: 1px solid transparent;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.sabbath__linktree-btn:hover,
+.sabbath__linktree-btn:focus-visible {
+  background: transparent;
   color: var(--gold);
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
+  border-color: rgba(244, 201, 95, 0.6);
+}
+
+.sabbath__linktree-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+.sabbath__note {
+  margin-top: 1.75rem;
 }
 
 @media (min-width: 720px) {
@@ -412,6 +440,14 @@ body {
 
 /* Phones */
 @media (max-width: 640px) {
+  .hero {
+    height: auto;
+    min-height: 100svh;
+    min-height: 100dvh;
+    overflow: visible;
+    padding-bottom: 3rem;
+  }
+
   .hero__ballpit {
     pointer-events: none;
   }
@@ -441,14 +477,26 @@ body {
 
   .hero__actions {
     margin-top: 1.5rem;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .hero__cta {
-    width: min(100%, 16rem);
+    width: 100%;
   }
 
   .ministry__list li {
     padding: 0.85rem 0;
+  }
+
+  .socials {
+    gap: 0.85rem;
+  }
+
+  .socials__link {
+    font-size: 0.85rem;
+    padding: 0.35rem 0;
   }
 }
 
