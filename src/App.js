@@ -49,7 +49,7 @@ function App() {
             <Ballpit
               key={isPhone ? 'ballpit-phone' : 'ballpit-desktop'}
               className="hero__canvas"
-              count={isPhone ? 55 : 100}
+              count={isPhone ? 28 : 100}
               gravity={0.01}
               friction={0.9975}
               wallBounce={0.95}
@@ -68,7 +68,16 @@ function App() {
             Wisdom Ministries UK · lifestyle faith, Sabbath fellowship, and daily wellness.
           </p>
           <div className="hero__actions">
-            <a className="hero__cta" href="#sabbath">
+            <a
+              className="hero__cta"
+              href="#sabbath"
+              onClick={(event) => {
+                const section = document.getElementById('sabbath');
+                if (!section) return;
+                event.preventDefault();
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
               Join Sabbath
             </a>
           </div>
