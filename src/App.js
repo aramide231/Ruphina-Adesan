@@ -18,22 +18,45 @@ function useIsPhone() {
   return isPhone;
 }
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(media.matches);
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  return reduced;
+}
+
 function App() {
   const isPhone = useIsPhone();
+  const reducedMotion = usePrefersReducedMotion();
+  const showBallpit = !reducedMotion;
 
   return (
     <div className="site">
       <section className="hero" aria-label="Welcome">
         <div className="hero__ballpit" aria-hidden="true">
-          <Ballpit
-            className="hero__canvas"
-            count={isPhone ? 55 : 100}
-            gravity={0.01}
-            friction={0.9975}
-            wallBounce={0.95}
-            followCursor={!isPhone}
-            colors={[0xc9a227, 0xf4c95f, 0xe8d5a3, 0xf7f1e8, 0x2c5f4a]}
-          />
+          {showBallpit ? (
+            <Ballpit
+              className="hero__canvas"
+              count={isPhone ? 22 : 80}
+              gravity={0.01}
+              friction={0.9975}
+              wallBounce={0.95}
+              followCursor={!isPhone}
+              lite={isPhone}
+              colors={[0xc9a227, 0xf4c95f, 0xe8d5a3, 0xf7f1e8, 0x2c5f4a]}
+            />
+          ) : null}
         </div>
 
         <div className="hero__veil" aria-hidden="true" />
@@ -91,12 +114,16 @@ function App() {
               <img
                 src={`${process.env.PUBLIC_URL}/brand/laarf-foundation.png`}
                 alt="LaBoard Ojo Adesan Ambrose & Ruphina Foundation emblem with Wisdom Magazine"
+                loading="lazy"
+                decoding="async"
               />
             </figure>
             <figure className="ministry__brand">
               <img
                 src={`${process.env.PUBLIC_URL}/brand/global-ministries.png`}
                 alt="Ruphina Ojo Adesan Global Ministries logo"
+                loading="lazy"
+                decoding="async"
               />
             </figure>
           </div>
@@ -120,6 +147,8 @@ function App() {
             <img
               src={`${process.env.PUBLIC_URL}/brand/sabbath-flyer.png`}
               alt="Wisdom Ministries UK Sabbath Fellowship invitation featuring Evang. Dr. Ruphina Ojo Adesan"
+              loading="lazy"
+              decoding="async"
             />
           </figure>
 

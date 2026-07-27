@@ -91,11 +91,10 @@ class x {
     this.#o = new IntersectionObserver(this.#u.bind(this), {
       root: null,
       rootMargin: '0px',
-      threshold: 0
+      threshold: 0.05
     });
     this.#o.observe(this.canvas);
     document.addEventListener('visibilitychange', this.#v.bind(this));
-    // Always start rendering — IntersectionObserver can fail to fire in some browsers
     this.#s = true;
     this.#w();
   }
@@ -107,13 +106,9 @@ class x {
   }
   #u(e) {
     this.#s = e[0].isIntersecting;
-    // Always keep animating when the canvas has a real size.
-    // Some browsers/webviews report isIntersecting=false incorrectly.
-    if (this.#s || (this.size.width > 0 && this.size.height > 0)) {
-      this.#w();
-    } else {
-      this.#z();
-    }
+    // Pause when scrolled away — keeps phones from lagging on later sections
+    if (this.#s) this.#w();
+    else this.#z();
   }
   #v() {
     if (this.#s) {
@@ -192,10 +187,20 @@ class x {
   }
   #w() {
     if (this.#n) return;
+    const targetDelta = this.maxPixelRatio && this.maxPixelRatio <= 1.25 ? 1 / 30 : 0;
+    let frameCarry = 0;
     const animate = () => {
       this.#l = requestAnimationFrame(animate);
       this.#c.update();
-      this.#h.delta = this.#c.getDelta();
+      const delta = this.#c.getDelta();
+      if (targetDelta) {
+        frameCarry += delta;
+        if (frameCarry < targetDelta) return;
+        this.#h.delta = frameCarry;
+        frameCarry = 0;
+      } else {
+        this.#h.delta = delta;
+      }
       this.#h.elapsed += this.#h.delta;
       this.onBeforeRender(this.#h);
       this.render();
@@ -467,29 +472,32 @@ class W {
       I.fromArray(s, base);
       B.fromArray(o, base);
       const radius = n[idx];
-      for (let jdx = idx + 1; jdx < t.count; jdx++) {
-        const otherBase = 3 * jdx;
-        O.fromArray(s, otherBase);
-        N.fromArray(o, otherBase);
-        const otherRadius = n[jdx];
-        _.copy(O).sub(I);
-        const dist = _.length();
-        const sumRadius = radius + otherRadius;
-        if (dist < sumRadius) {
-          const overlap = sumRadius - dist;
-          j.copy(_)
-            .normalize()
-            .multiplyScalar(0.5 * overlap);
-          H.copy(j).multiplyScalar(Math.max(B.length(), 1));
-          T.copy(j).multiplyScalar(Math.max(N.length(), 1));
-          I.sub(j);
-          B.sub(H);
-          I.toArray(s, base);
-          B.toArray(o, base);
-          O.add(j);
-          N.add(T);
-          O.toArray(s, otherBase);
-          N.toArray(o, otherBase);
+      // Pairwise collisions are O(n²) — skip in lite mode for phones
+      if (!t.lite) {
+        for (let jdx = idx + 1; jdx < t.count; jdx++) {
+          const otherBase = 3 * jdx;
+          O.fromArray(s, otherBase);
+          N.fromArray(o, otherBase);
+          const otherRadius = n[jdx];
+          _.copy(O).sub(I);
+          const dist = _.length();
+          const sumRadius = radius + otherRadius;
+          if (dist < sumRadius) {
+            const overlap = sumRadius - dist;
+            j.copy(_)
+              .normalize()
+              .multiplyScalar(0.5 * overlap);
+            H.copy(j).multiplyScalar(Math.max(B.length(), 1));
+            T.copy(j).multiplyScalar(Math.max(N.length(), 1));
+            I.sub(j);
+            B.sub(H);
+            I.toArray(s, base);
+            B.toArray(o, base);
+            O.add(j);
+            N.add(T);
+            O.toArray(s, otherBase);
+            N.toArray(o, otherBase);
+          }
         }
       }
       if (t.controlSphere0) {
@@ -551,7 +559,8 @@ const X = {
   maxY: 5,
   maxZ: 2,
   controlSphere0: false,
-  followCursor: true
+  followCursor: true,
+  lite: false
 };
 
 const U = new m();
@@ -559,24 +568,31 @@ const U = new m();
 class Z extends d {
   constructor(e, t = {}) {
     const i = { ...X, ...t };
-    const o = new g(1, 32, 32);
-    let envMap;
-    try {
-      const room = new z();
-      const pmrem = new p(e);
-      envMap = pmrem.fromScene(room, 0.04).texture;
-      pmrem.dispose();
-    } catch (err) {
-      console.warn('Ballpit: environment map unavailable', err);
-      envMap = null;
+    const segments = i.lite ? 10 : 24;
+    const o = new g(1, segments, segments);
+    let envMap = null;
+    if (!i.lite) {
+      try {
+        const room = new z();
+        const pmrem = new p(e);
+        envMap = pmrem.fromScene(room, 0.04).texture;
+        pmrem.dispose();
+      } catch (err) {
+        console.warn('Ballpit: environment map unavailable', err);
+      }
     }
-    // Use standard physical material — custom scattering shader can fail to compile
-    // on some GPUs/browsers and leave a blank canvas.
-    const r = new c({
-      envMap: envMap || undefined,
-      ...i.materialParams,
-      color: 0xffffff
-    });
+    const materialOptions = i.lite
+      ? {
+          color: 0xffffff,
+          metalness: 0.35,
+          roughness: 0.55
+        }
+      : {
+          envMap: envMap || undefined,
+          ...i.materialParams,
+          color: 0xffffff
+        };
+    const r = new c(materialOptions);
     if (envMap && r.envMapRotation) {
       r.envMapRotation.x = -Math.PI / 2;
     }
@@ -654,14 +670,16 @@ class Z extends d {
 }
 
 function createBallpit(e, t = {}) {
+  const lite = Boolean(t.lite);
   const i = new x({
     canvas: e,
     size: 'parent',
-    rendererOptions: { antialias: true, alpha: true }
+    rendererOptions: { antialias: !lite, alpha: true, powerPreference: lite ? 'low-power' : 'high-performance' }
   });
   let s;
   i.renderer.toneMapping = v;
   i.renderer.setClearColor(0x000000, 0);
+  i.maxPixelRatio = lite ? 1 : 1.5;
   i.camera.position.set(0, 0, 20);
   i.camera.lookAt(0, 0, 0);
   i.cameraMaxAspect = 1.5;
@@ -700,7 +718,7 @@ function createBallpit(e, t = {}) {
   const h = S({
     domElement: e,
     onMove() {
-      if (!s) return;
+      if (!s || lite) return;
       n.setFromCamera(h.nPosition, i.camera);
       i.camera.getWorldDirection(o.normal);
       n.ray.intersectPlane(o, r);
