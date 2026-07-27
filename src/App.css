@@ -103,6 +103,10 @@ body {
   pointer-events: auto;
   position: relative;
   z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
 }
 
 .hero__eyebrow {
@@ -169,6 +173,18 @@ body {
   color: var(--paper);
   border-color: rgba(247, 241, 232, 0.55);
   transform: translateY(-2px);
+}
+
+.hero__cta--ghost {
+  color: var(--paper);
+  background: transparent;
+  border-color: rgba(247, 241, 232, 0.45);
+}
+
+.hero__cta--ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: transparent;
 }
 
 .hero__cta:focus-visible {
@@ -344,8 +360,43 @@ body {
   border: 1px solid rgba(247, 241, 232, 0.1);
 }
 
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  margin: 1.75rem 0 0;
+}
+
+.socials__link {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--gold);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.socials__link:hover,
+.socials__link:focus-visible {
+  border-bottom-color: rgba(244, 201, 95, 0.7);
+}
+
+.socials__link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
 .sabbath__note {
   margin-top: 1.75rem;
+}
+
+.sabbath__inline-link {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
 
 @media (min-width: 720px) {
