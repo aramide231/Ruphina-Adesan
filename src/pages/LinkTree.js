@@ -9,9 +9,9 @@ function LinkTree() {
 
       <header className="linktree__header">
         <img
-          className="linktree__mark"
-          src={`${process.env.PUBLIC_URL}/brand/global-ministries.png`}
-          alt=""
+          className="linktree__avatar"
+          src={`${process.env.PUBLIC_URL}/brand/ruphina-portrait.png`}
+          alt="Evang. Dr. Ruphina Ojo Adesan"
         />
         <p className="linktree__eyebrow">Evang. Dr. · UK Clergy</p>
         <h1 className="linktree__name">Ruphina Ojo Adesan</h1>
