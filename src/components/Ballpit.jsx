@@ -6,7 +6,6 @@ import {
   Timer as e,
   AmbientLight as f,
   SphereGeometry as g,
-  ShaderChunk as h,
   Scene as i,
   Color as l,
   Object3D as m,
@@ -526,36 +525,6 @@ class W {
       I.toArray(s, base);
       B.toArray(o, base);
     }
-  }
-}
-
-class Y extends c {
-  constructor(e) {
-    super(e);
-    this.uniforms = {
-      thicknessDistortion: { value: 0.1 },
-      thicknessAmbient: { value: 0 },
-      thicknessAttenuation: { value: 0.1 },
-      thicknessPower: { value: 2 },
-      thicknessScale: { value: 10 }
-    };
-    this.defines.USE_UV = '';
-    this.onBeforeCompile = e => {
-      Object.assign(e.uniforms, this.uniforms);
-      e.fragmentShader =
-        '\n        uniform float thicknessPower;\n        uniform float thicknessScale;\n        uniform float thicknessDistortion;\n        uniform float thicknessAmbient;\n        uniform float thicknessAttenuation;\n      ' +
-        e.fragmentShader;
-      e.fragmentShader = e.fragmentShader.replace(
-        'void main() {',
-        '\n        void RE_Direct_Scattering(const in IncidentLight directLight, const in vec2 uv, const in vec3 geometryPosition, const in vec3 geometryNormal, const in vec3 geometryViewDir, const in vec3 geometryClearcoatNormal, inout ReflectedLight reflectedLight) {\n          vec3 scatteringHalf = normalize(directLight.direction + (geometryNormal * thicknessDistortion));\n          float scatteringDot = pow(saturate(dot(geometryViewDir, -scatteringHalf)), thicknessPower) * thicknessScale;\n          #ifdef USE_COLOR\n            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * vColor;\n          #else\n            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * diffuse;\n          #endif\n          reflectedLight.directDiffuse += scatteringIllu * thicknessAttenuation * directLight.color;\n        }\n\n        void main() {\n      '
-      );
-      const t = h.lights_fragment_begin.replaceAll(
-        'RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );',
-        '\n          RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );\n          RE_Direct_Scattering(directLight, vUv, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, reflectedLight);\n        '
-      );
-      e.fragmentShader = e.fragmentShader.replace('#include <lights_fragment_begin>', t);
-      if (this.onBeforeCompile2) this.onBeforeCompile2(e);
-    };
   }
 }
 
