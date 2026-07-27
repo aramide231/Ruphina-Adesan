@@ -33,6 +33,7 @@ body {
   background: var(--ink);
   color: var(--paper);
   overflow-x: hidden;
+  touch-action: pan-y;
 }
 
 .hero {
@@ -45,6 +46,7 @@ body {
   height: 100dvh;
   min-height: 100svh;
   overflow: hidden;
+  touch-action: pan-y;
   padding:
     max(1rem, env(safe-area-inset-top))
     max(var(--page-pad), env(safe-area-inset-right))
@@ -60,6 +62,7 @@ body {
   height: 100%;
   overflow: hidden;
   background: #0f1411;
+  pointer-events: none;
 }
 
 .hero__canvas {
@@ -81,16 +84,11 @@ body {
 .hero__content {
   position: relative;
   z-index: 2;
-  pointer-events: auto;
+  /* Let touches pass through so the page can scroll; only the button captures taps */
+  pointer-events: none;
   text-align: center;
   width: min(100%, 42rem);
   padding: 0;
-}
-
-.hero__eyebrow,
-.hero__name,
-.hero__lede {
-  pointer-events: none;
 }
 
 .hero__actions {
@@ -143,6 +141,8 @@ body {
   justify-content: center;
   min-height: 48px;
   min-width: 9.5rem;
+  pointer-events: auto;
+  touch-action: manipulation;
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 500;

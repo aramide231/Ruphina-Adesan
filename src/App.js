@@ -47,8 +47,9 @@ function App() {
         <div className="hero__ballpit" aria-hidden="true">
           {showBallpit ? (
             <Ballpit
+              key={isPhone ? 'ballpit-phone' : 'ballpit-desktop'}
               className="hero__canvas"
-              count={isPhone ? 40 : 100}
+              count={isPhone ? 55 : 100}
               gravity={0.01}
               friction={0.9975}
               wallBounce={0.95}

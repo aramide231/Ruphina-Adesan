@@ -653,7 +653,6 @@ function createBallpit(e, t = {}) {
   let s;
   i.renderer.toneMapping = v;
   i.renderer.setClearColor(0x000000, 0);
-  i.maxPixelRatio = 2;
   i.camera.position.set(0, 0, 20);
   i.camera.lookAt(0, 0, 0);
   i.cameraMaxAspect = 1.5;
@@ -663,7 +662,6 @@ function createBallpit(e, t = {}) {
   const r = new a();
   let c = false;
 
-  // Allow page scrolling on touch devices; never lock the document
   e.style.touchAction = 'pan-y';
   e.style.userSelect = 'none';
   e.style.webkitUserSelect = 'none';
