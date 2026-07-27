@@ -81,10 +81,23 @@ body {
 .hero__content {
   position: relative;
   z-index: 2;
-  pointer-events: none;
+  pointer-events: auto;
   text-align: center;
   width: min(100%, 42rem);
   padding: 0;
+}
+
+.hero__eyebrow,
+.hero__name,
+.hero__lede {
+  pointer-events: none;
+}
+
+.hero__actions {
+  margin-top: 1.75rem;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
 }
 
 .hero__eyebrow {
@@ -122,11 +135,6 @@ body {
   color: rgba(247, 241, 232, 0.95);
   text-shadow: 0 1px 18px rgba(15, 20, 17, 0.55);
   text-wrap: pretty;
-}
-
-.hero__actions {
-  margin-top: 1.75rem;
-  pointer-events: auto;
 }
 
 .hero__cta {

@@ -48,12 +48,11 @@ function App() {
           {showBallpit ? (
             <Ballpit
               className="hero__canvas"
-              count={isPhone ? 22 : 80}
+              count={isPhone ? 40 : 100}
               gravity={0.01}
               friction={0.9975}
               wallBounce={0.95}
               followCursor={!isPhone}
-              lite={isPhone}
               colors={[0xc9a227, 0xf4c95f, 0xe8d5a3, 0xf7f1e8, 0x2c5f4a]}
             />
           ) : null}

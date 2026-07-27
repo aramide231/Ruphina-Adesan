@@ -187,20 +187,10 @@ class x {
   }
   #w() {
     if (this.#n) return;
-    const targetDelta = this.maxPixelRatio && this.maxPixelRatio <= 1.25 ? 1 / 30 : 0;
-    let frameCarry = 0;
     const animate = () => {
       this.#l = requestAnimationFrame(animate);
       this.#c.update();
-      const delta = this.#c.getDelta();
-      if (targetDelta) {
-        frameCarry += delta;
-        if (frameCarry < targetDelta) return;
-        this.#h.delta = frameCarry;
-        frameCarry = 0;
-      } else {
-        this.#h.delta = delta;
-      }
+      this.#h.delta = this.#c.getDelta();
       this.#h.elapsed += this.#h.delta;
       this.onBeforeRender(this.#h);
       this.render();
@@ -268,10 +258,10 @@ function S(e) {
         document.body.addEventListener('pointerleave', L);
         document.body.addEventListener('click', C);
 
-        document.body.addEventListener('touchstart', TouchStart, { passive: false });
-        document.body.addEventListener('touchmove', TouchMove, { passive: false });
-        document.body.addEventListener('touchend', TouchEnd, { passive: false });
-        document.body.addEventListener('touchcancel', TouchEnd, { passive: false });
+        document.body.addEventListener('touchstart', TouchStart, { passive: true });
+        document.body.addEventListener('touchmove', TouchMove, { passive: true });
+        document.body.addEventListener('touchend', TouchEnd, { passive: true });
+        document.body.addEventListener('touchcancel', TouchEnd, { passive: true });
 
         R = true;
       }
@@ -340,7 +330,6 @@ function L() {
 
 function TouchStart(e) {
   if (e.touches.length > 0) {
-    e.preventDefault();
     A.x = e.touches[0].clientX;
     A.y = e.touches[0].clientY;
 
@@ -361,7 +350,6 @@ function TouchStart(e) {
 
 function TouchMove(e) {
   if (e.touches.length > 0) {
-    e.preventDefault();
     A.x = e.touches[0].clientX;
     A.y = e.touches[0].clientY;
 
@@ -472,32 +460,29 @@ class W {
       I.fromArray(s, base);
       B.fromArray(o, base);
       const radius = n[idx];
-      // Pairwise collisions are O(n²) — skip in lite mode for phones
-      if (!t.lite) {
-        for (let jdx = idx + 1; jdx < t.count; jdx++) {
-          const otherBase = 3 * jdx;
-          O.fromArray(s, otherBase);
-          N.fromArray(o, otherBase);
-          const otherRadius = n[jdx];
-          _.copy(O).sub(I);
-          const dist = _.length();
-          const sumRadius = radius + otherRadius;
-          if (dist < sumRadius) {
-            const overlap = sumRadius - dist;
-            j.copy(_)
-              .normalize()
-              .multiplyScalar(0.5 * overlap);
-            H.copy(j).multiplyScalar(Math.max(B.length(), 1));
-            T.copy(j).multiplyScalar(Math.max(N.length(), 1));
-            I.sub(j);
-            B.sub(H);
-            I.toArray(s, base);
-            B.toArray(o, base);
-            O.add(j);
-            N.add(T);
-            O.toArray(s, otherBase);
-            N.toArray(o, otherBase);
-          }
+      for (let jdx = idx + 1; jdx < t.count; jdx++) {
+        const otherBase = 3 * jdx;
+        O.fromArray(s, otherBase);
+        N.fromArray(o, otherBase);
+        const otherRadius = n[jdx];
+        _.copy(O).sub(I);
+        const dist = _.length();
+        const sumRadius = radius + otherRadius;
+        if (dist < sumRadius) {
+          const overlap = sumRadius - dist;
+          j.copy(_)
+            .normalize()
+            .multiplyScalar(0.5 * overlap);
+          H.copy(j).multiplyScalar(Math.max(B.length(), 1));
+          T.copy(j).multiplyScalar(Math.max(N.length(), 1));
+          I.sub(j);
+          B.sub(H);
+          I.toArray(s, base);
+          B.toArray(o, base);
+          O.add(j);
+          N.add(T);
+          O.toArray(s, otherBase);
+          N.toArray(o, otherBase);
         }
       }
       if (t.controlSphere0) {
@@ -559,8 +544,7 @@ const X = {
   maxY: 5,
   maxZ: 2,
   controlSphere0: false,
-  followCursor: true,
-  lite: false
+  followCursor: true
 };
 
 const U = new m();
@@ -568,31 +552,21 @@ const U = new m();
 class Z extends d {
   constructor(e, t = {}) {
     const i = { ...X, ...t };
-    const segments = i.lite ? 10 : 24;
-    const o = new g(1, segments, segments);
+    const o = new g(1, 32, 32);
     let envMap = null;
-    if (!i.lite) {
-      try {
-        const room = new z();
-        const pmrem = new p(e);
-        envMap = pmrem.fromScene(room, 0.04).texture;
-        pmrem.dispose();
-      } catch (err) {
-        console.warn('Ballpit: environment map unavailable', err);
-      }
+    try {
+      const room = new z();
+      const pmrem = new p(e);
+      envMap = pmrem.fromScene(room, 0.04).texture;
+      pmrem.dispose();
+    } catch (err) {
+      console.warn('Ballpit: environment map unavailable', err);
     }
-    const materialOptions = i.lite
-      ? {
-          color: 0xffffff,
-          metalness: 0.35,
-          roughness: 0.55
-        }
-      : {
-          envMap: envMap || undefined,
-          ...i.materialParams,
-          color: 0xffffff
-        };
-    const r = new c(materialOptions);
+    const r = new c({
+      envMap: envMap || undefined,
+      ...i.materialParams,
+      color: 0xffffff
+    });
     if (envMap && r.envMapRotation) {
       r.envMapRotation.x = -Math.PI / 2;
     }
@@ -670,16 +644,16 @@ class Z extends d {
 }
 
 function createBallpit(e, t = {}) {
-  const lite = Boolean(t.lite);
+  const followCursor = t.followCursor !== false;
   const i = new x({
     canvas: e,
     size: 'parent',
-    rendererOptions: { antialias: !lite, alpha: true, powerPreference: lite ? 'low-power' : 'high-performance' }
+    rendererOptions: { antialias: true, alpha: true }
   });
   let s;
   i.renderer.toneMapping = v;
   i.renderer.setClearColor(0x000000, 0);
-  i.maxPixelRatio = lite ? 1 : 1.5;
+  i.maxPixelRatio = 2;
   i.camera.position.set(0, 0, 20);
   i.camera.lookAt(0, 0, 0);
   i.cameraMaxAspect = 1.5;
@@ -689,9 +663,11 @@ function createBallpit(e, t = {}) {
   const r = new a();
   let c = false;
 
-  e.style.touchAction = 'none';
+  // Allow page scrolling on touch devices; never lock the document
+  e.style.touchAction = 'pan-y';
   e.style.userSelect = 'none';
   e.style.webkitUserSelect = 'none';
+  e.style.pointerEvents = 'none';
 
   function initialize(e) {
     if (s) {
@@ -715,20 +691,25 @@ function createBallpit(e, t = {}) {
   initialize(t);
   i.resize();
 
-  const h = S({
-    domElement: e,
-    onMove() {
-      if (!s || lite) return;
-      n.setFromCamera(h.nPosition, i.camera);
-      i.camera.getWorldDirection(o.normal);
-      n.ray.intersectPlane(o, r);
-      s.physics.center.copy(r);
-      s.config.controlSphere0 = true;
-    },
-    onLeave() {
-      if (s) s.config.controlSphere0 = false;
-    }
-  });
+  // Only attach pointer tracking when cursor-follow is enabled (desktop)
+  let h = { dispose() {} };
+  if (followCursor) {
+    e.style.pointerEvents = 'auto';
+    h = S({
+      domElement: e,
+      onMove() {
+        if (!s) return;
+        n.setFromCamera(h.nPosition, i.camera);
+        i.camera.getWorldDirection(o.normal);
+        n.ray.intersectPlane(o, r);
+        s.physics.center.copy(r);
+        s.config.controlSphere0 = true;
+      },
+      onLeave() {
+        if (s) s.config.controlSphere0 = false;
+      }
+    });
+  }
 
   return {
     three: i,
