@@ -16,7 +16,7 @@ function LinkTree() {
         <p className="linktree__eyebrow">Evang. Dr. · UK Clergy</p>
         <h1 className="linktree__name">Ruphina Ojo Adesan</h1>
         <p className="linktree__lede">
-          Wisdom Ministries UK · Sabbath streams · lifestyle &amp; wellness
+          Author &amp; Publisher · Wisdom Ministries UK · Sabbath &amp; wellness
         </p>
       </header>
 

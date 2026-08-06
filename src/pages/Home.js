@@ -67,7 +67,7 @@ function Home() {
           <p className="hero__eyebrow">Evang. Dr. · UK Clergy</p>
           <h1 className="hero__name">Ruphina Ojo Adesan</h1>
           <p className="hero__lede">
-            Wisdom Ministries UK · lifestyle faith, Sabbath fellowship, and daily wellness.
+            Author &amp; Publisher · Wisdom Ministries UK · Sabbath fellowship and daily wellness.
           </p>
           <div className="hero__actions">
             <a
@@ -94,9 +94,10 @@ function Home() {
           <h2 className="about__title">About</h2>
           <p className="about__text">
             Evang. Dr. Ruphina Ojo Adesan has walked in leadership all her adult
-            life. She serves with Wisdom Ministries UK, is CEO and Editor in Chief
-            of Wisdom Magazine, and leads through the LaBoard Ojo Adesan Ambrose
-            &amp; Ruphina Foundation (LAARF) and Ruphina Ojo Adesan Global Ministries.
+            life. An author and publisher, she serves with Wisdom Ministries UK,
+            is CEO and Editor in Chief of Wisdom Magazine, and leads through the
+            LaBoard Ojo Adesan Ambrose &amp; Ruphina Foundation (LAARF) and
+            Ruphina Ojo Adesan Global Ministries.
           </p>
           <p className="about__text about__text--spaced">
             Retired but not tired — she is refiring in His vineyard to His glory.
@@ -117,6 +118,7 @@ function Home() {
             word, wellness, and weekday witness.
           </p>
           <ul className="ministry__list">
+            <li>Author &amp; Publisher</li>
             <li>Wisdom Ministries UK</li>
             <li>Wisdom Magazine — CEO &amp; Editor in Chief</li>
             <li>LaBoard Ojo Adesan Ambrose &amp; Ruphina Foundation (LAARF)</li>
@@ -141,6 +143,45 @@ function Home() {
               />
             </figure>
           </div>
+        </div>
+      </section>
+
+      <section className="publications" id="publications">
+        <div className="publications__inner">
+          <h2 className="publications__title">Wisdom Magazine</h2>
+          <p className="publications__lede">
+            As CEO and Editor in Chief, she publishes Wisdom Magazine — faith,
+            leadership, community, and victorious living for readers in the UK
+            and beyond.
+          </p>
+
+          <figure className="publications__showcase">
+            <img
+              src={`${process.env.PUBLIC_URL}/brand/publications/wisdom-magazine-covers.png`}
+              alt="Collection of Wisdom Magazine covers featuring leadership, ministry, health, and community stories"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section className="book" id="book">
+        <div className="book__inner">
+          <h2 className="book__title">Wisdom for Victorious Living</h2>
+          <p className="book__lede">
+            A Wisdom Book — her testimony of the rough, thorny road to the top
+            in the National Health Service as a Black female Christian.
+          </p>
+
+          <figure className="book__showcase">
+            <img
+              src={`${process.env.PUBLIC_URL}/brand/publications/wisdom-book-gallery.png`}
+              alt="Copies of the book Wisdom for Victorious Living arranged for distribution"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
         </div>
       </section>
 

@@ -28,6 +28,16 @@ export const linkTreeLinks = [
     href: '/'
   },
   {
+    id: 'publications',
+    name: 'Wisdom Magazine · Author & Publisher',
+    href: '/#publications'
+  },
+  {
+    id: 'book',
+    name: 'Wisdom for Victorious Living',
+    href: '/#book'
+  },
+  {
     id: 'sabbath',
     name: 'Sabbath Fellowship · Saturdays 12 noon',
     href: '/#sabbath'

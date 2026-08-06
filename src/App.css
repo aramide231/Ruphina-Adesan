@@ -194,6 +194,8 @@ body {
 
 .about,
 .ministry,
+.publications,
+.book,
 .sabbath {
   position: relative;
   z-index: 1;
@@ -212,6 +214,14 @@ body {
   background: #152018;
 }
 
+.publications {
+  background: linear-gradient(180deg, #121814 0%, #1a221c 100%);
+}
+
+.book {
+  background: linear-gradient(165deg, var(--ink-soft) 0%, #152018 60%, var(--ink) 100%);
+}
+
 .sabbath {
   background: linear-gradient(180deg, var(--ink) 0%, #121814 100%);
   padding-bottom: max(var(--section-pad-y), env(safe-area-inset-bottom));
@@ -219,14 +229,28 @@ body {
 
 .about__inner,
 .ministry__inner,
+.publications__inner,
+.book__inner,
 .sabbath__inner {
-  max-width: 40rem;
   margin: 0 auto;
   width: 100%;
 }
 
+.about__inner,
+.ministry__inner,
+.sabbath__inner {
+  max-width: 40rem;
+}
+
+.publications__inner,
+.book__inner {
+  max-width: 48rem;
+}
+
 .about__title,
 .ministry__title,
+.publications__title,
+.book__title,
 .sabbath__title {
   margin: 0 0 1.1rem;
   font-family: var(--font-display);
@@ -240,6 +264,8 @@ body {
 
 .about__text,
 .ministry__lede,
+.publications__lede,
+.book__lede,
 .sabbath__lede,
 .sabbath__note {
   margin: 0;
@@ -358,6 +384,44 @@ body {
   width: 100%;
   height: auto;
   border: 1px solid rgba(247, 241, 232, 0.1);
+}
+
+.publications__lede,
+.book__lede {
+  margin-bottom: 1.75rem;
+}
+
+.publications__showcase,
+.book__showcase {
+  margin: 0;
+}
+
+.publications__showcase img,
+.book__showcase img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(247, 241, 232, 0.1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .publications__showcase,
+  .book__showcase {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    animation: reveal-up 0.9s ease forwards;
+  }
+
+  .book__showcase {
+    animation-delay: 0.12s;
+  }
+}
+
+@keyframes reveal-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .socials {
