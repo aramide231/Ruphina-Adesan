@@ -253,7 +253,7 @@ function Admin() {
 
   if (authChecking || loading) {
     return (
-      <div className="admin">
+      <div className="admin admin--login">
         <p className="admin__status">Loading…</p>
       </div>
     );
@@ -261,12 +261,15 @@ function Admin() {
 
   if (!session) {
     return (
-      <div className="admin">
-        <div className="admin__card">
+      <div className="admin admin--login">
+        <div className="admin__login">
+          <div className="admin__login-mark" aria-hidden="true">
+            RA
+          </div>
           <p className="admin__eyebrow">Admin</p>
-          <h1 className="admin__title">Sign in</h1>
+          <h1 className="admin__title">Welcome back</h1>
           <p className="admin__hint">
-            Use the email and password set up for this site in Supabase Auth.
+            Please log in with the email and password provided.
           </p>
           <form className="admin__form" onSubmit={handleLogin}>
             <Field label="Email">
@@ -274,6 +277,7 @@ function Admin() {
                 className="admin__input"
                 type="email"
                 autoComplete="username"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -284,14 +288,15 @@ function Admin() {
                 className="admin__input"
                 type="password"
                 autoComplete="current-password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </Field>
             {authError ? <p className="admin__error">{authError}</p> : null}
-            <button className="admin__btn" type="submit" disabled={authBusy}>
-              {authBusy ? 'Signing in…' : 'Sign in'}
+            <button className="admin__btn admin__btn--gold" type="submit" disabled={authBusy}>
+              {authBusy ? 'Signing in…' : 'Log in'}
             </button>
           </form>
           <p className="admin__footer-link">
