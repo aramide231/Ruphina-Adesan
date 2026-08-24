@@ -8,17 +8,7 @@ import './Admin.css';
 const TABS = [
   { id: 'about', label: 'About' },
   { id: 'sabbath', label: 'Sabbath' },
-  { id: 'links', label: 'Links' },
-  { id: 'photos', label: 'Photos' }
-];
-
-const PHOTO_FIELDS = [
-  { key: 'portrait', label: 'Portrait / avatar' },
-  { key: 'sabbathFlyer', label: 'Sabbath flyer' },
-  { key: 'laarfLogo', label: 'LAARF logo' },
-  { key: 'globalMinistriesLogo', label: 'Global Ministries logo' },
-  { key: 'magazineCovers', label: 'Wisdom Magazine covers' },
-  { key: 'bookGallery', label: 'Book gallery' }
+  { id: 'links', label: 'Links' }
 ];
 
 function cloneContent(value) {
@@ -31,6 +21,29 @@ function Field({ label, children }) {
       <span className="admin__label">{label}</span>
       {children}
     </label>
+  );
+}
+
+function PhotoField({ label, imageSrc, uploading, onUpload }) {
+  return (
+    <div className="admin__card-block">
+      <p className="admin__label">{label}</p>
+      {imageSrc ? (
+        <img className="admin__preview" src={imageSrc} alt={label} />
+      ) : null}
+      <input
+        className="admin__file"
+        type="file"
+        accept="image/*"
+        disabled={uploading}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          onUpload(file);
+          e.target.value = '';
+        }}
+      />
+      {uploading ? <p className="admin__status">Uploading…</p> : null}
+    </div>
   );
 }
 
@@ -229,7 +242,7 @@ function Admin() {
     }
   };
 
-  const handlePhotoUpload = async (key, file) => {
+  const handlePhotoUpload = async (key, label, file) => {
     if (!file) return;
     setUploadingKey(key);
     setStatus('');
@@ -250,7 +263,7 @@ function Admin() {
         [key]: result.url
       }
     }));
-    setStatus(`${PHOTO_FIELDS.find((f) => f.key === key)?.label || 'Photo'} uploaded. Click Save to publish.`);
+    setStatus(`${label || 'Photo'} uploaded. Click Save to publish.`);
   };
 
   if (authChecking || loading) {
@@ -454,6 +467,20 @@ function Admin() {
             <button type="button" className="admin__btn admin__btn--ghost" onClick={addMinistryItem}>
               Add ministry item
             </button>
+            <PhotoField
+              label="LAARF logo"
+              imageSrc={draft.images.laarfLogo}
+              uploading={uploadingKey === 'laarfLogo'}
+              onUpload={(file) => handlePhotoUpload('laarfLogo', 'LAARF logo', file)}
+            />
+            <PhotoField
+              label="Global Ministries logo"
+              imageSrc={draft.images.globalMinistriesLogo}
+              uploading={uploadingKey === 'globalMinistriesLogo'}
+              onUpload={(file) =>
+                handlePhotoUpload('globalMinistriesLogo', 'Global Ministries logo', file)
+              }
+            />
 
             <h2 className="admin__section-title">Publications</h2>
             <Field label="Magazine title">
@@ -471,6 +498,14 @@ function Admin() {
                 onChange={(e) => updateSection('publications', 'lede', e.target.value)}
               />
             </Field>
+            <PhotoField
+              label="Wisdom Magazine covers"
+              imageSrc={draft.images.magazineCovers}
+              uploading={uploadingKey === 'magazineCovers'}
+              onUpload={(file) =>
+                handlePhotoUpload('magazineCovers', 'Wisdom Magazine covers', file)
+              }
+            />
             <Field label="Book title">
               <input
                 className="admin__input"
@@ -486,6 +521,12 @@ function Admin() {
                 onChange={(e) => updateSection('book', 'lede', e.target.value)}
               />
             </Field>
+            <PhotoField
+              label="Book gallery"
+              imageSrc={draft.images.bookGallery}
+              uploading={uploadingKey === 'bookGallery'}
+              onUpload={(file) => handlePhotoUpload('bookGallery', 'Book gallery', file)}
+            />
           </div>
         ) : null}
 
@@ -535,6 +576,12 @@ function Admin() {
                 onChange={(e) => updateSection('sabbath', 'note', e.target.value)}
               />
             </Field>
+            <PhotoField
+              label="Sabbath flyer"
+              imageSrc={draft.images.sabbathFlyer}
+              uploading={uploadingKey === 'sabbathFlyer'}
+              onUpload={(file) => handlePhotoUpload('sabbathFlyer', 'Sabbath flyer', file)}
+            />
 
             <h2 className="admin__section-title">Social URLs</h2>
             {draft.socials.map((social, index) => (
@@ -590,6 +637,12 @@ function Admin() {
                 onChange={(e) => updateSection('linkTree', 'footer', e.target.value)}
               />
             </Field>
+            <PhotoField
+              label="Portrait / avatar"
+              imageSrc={draft.images.portrait}
+              uploading={uploadingKey === 'portrait'}
+              onUpload={(file) => handlePhotoUpload('portrait', 'Portrait / avatar', file)}
+            />
 
             <h2 className="admin__section-title">Buttons</h2>
             {draft.linkTreeLinks.map((item, index) => (
@@ -638,40 +691,6 @@ function Admin() {
             <button type="button" className="admin__btn admin__btn--ghost" onClick={addLink}>
               Add link
             </button>
-          </div>
-        ) : null}
-
-        {tab === 'photos' ? (
-          <div className="admin__stack">
-            <p className="admin__hint">
-              Upload a new photo, then click Save at the top so the website uses it.
-            </p>
-            {PHOTO_FIELDS.map((field) => (
-              <div key={field.key} className="admin__card-block">
-                <p className="admin__label">{field.label}</p>
-                {draft.images[field.key] ? (
-                  <img
-                    className="admin__preview"
-                    src={draft.images[field.key]}
-                    alt={field.label}
-                  />
-                ) : null}
-                <input
-                  className="admin__file"
-                  type="file"
-                  accept="image/*"
-                  disabled={uploadingKey === field.key}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    handlePhotoUpload(field.key, file);
-                    e.target.value = '';
-                  }}
-                />
-                {uploadingKey === field.key ? (
-                  <p className="admin__status">Uploading…</p>
-                ) : null}
-              </div>
-            ))}
           </div>
         ) : null}
       </div>
