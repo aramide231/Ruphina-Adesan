@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Ballpit from '../components/Ballpit';
-import { socials } from '../data/links';
+import { useContent } from '../content/ContentProvider';
 import '../App.css';
 
 function useIsPhone() {
@@ -39,9 +39,12 @@ function usePrefersReducedMotion() {
 }
 
 function Home() {
+  const { content } = useContent();
   const isPhone = useIsPhone();
   const reducedMotion = usePrefersReducedMotion();
   const showBallpit = !reducedMotion;
+  const { hero, about, ministry, publications, book, sabbath, socials, images, imageAlts } =
+    content;
 
   return (
     <div className="site">
@@ -64,11 +67,9 @@ function Home() {
         <div className="hero__veil" aria-hidden="true" />
 
         <div className="hero__content">
-          <p className="hero__eyebrow">Evang. Dr. · UK Clergy</p>
-          <h1 className="hero__name">Ruphina Ojo Adesan</h1>
-          <p className="hero__lede">
-            Author &amp; Publisher · Wisdom Ministries UK · Sabbath fellowship and daily wellness.
-          </p>
+          <p className="hero__eyebrow">{hero.eyebrow}</p>
+          <h1 className="hero__name">{hero.name}</h1>
+          <p className="hero__lede">{hero.lede}</p>
           <div className="hero__actions">
             <a
               className="hero__cta"
@@ -80,10 +81,10 @@ function Home() {
                 section.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
             >
-              Join Sabbath
+              {hero.primaryCta}
             </a>
             <Link className="hero__cta hero__cta--ghost" to="/links">
-              Links
+              {hero.secondaryCta}
             </Link>
           </div>
         </div>
@@ -91,53 +92,42 @@ function Home() {
 
       <section className="about" id="about">
         <div className="about__inner">
-          <h2 className="about__title">About</h2>
-          <p className="about__text">
-            Evang. Dr. Ruphina Ojo Adesan has walked in leadership all her adult
-            life. An author and publisher, she serves with Wisdom Ministries UK,
-            is CEO and Editor in Chief of Wisdom Magazine, and leads through the
-            LaBoard Ojo Adesan Ambrose &amp; Ruphina Foundation (LAARF) and
-            Ruphina Ojo Adesan Global Ministries.
-          </p>
-          <p className="about__text about__text--spaced">
-            Retired but not tired — she is refiring in His vineyard to His glory.
-            Glory to God Most High.
-          </p>
-          <p className="about__verse">
-            “Jesus gave us power and authority to cast out all Demons and Heal all
-            Diseases.” — Luke 9:1
-          </p>
+          <h2 className="about__title">{about.title}</h2>
+          {about.paragraphs.map((paragraph, index) => (
+            <p
+              key={`about-p-${index}`}
+              className={index === 0 ? 'about__text' : 'about__text about__text--spaced'}
+            >
+              {paragraph}
+            </p>
+          ))}
+          <p className="about__verse">{about.verse}</p>
         </div>
       </section>
 
       <section className="ministry" id="ministry">
         <div className="ministry__inner">
-          <h2 className="ministry__title">Ministry &amp; work</h2>
-          <p className="ministry__lede">
-            Most of what she does is lifestyle influencing — faith lived out in
-            word, wellness, and weekday witness.
-          </p>
+          <h2 className="ministry__title">{ministry.title}</h2>
+          <p className="ministry__lede">{ministry.lede}</p>
           <ul className="ministry__list">
-            <li>Author &amp; Publisher</li>
-            <li>Wisdom Ministries UK</li>
-            <li>Wisdom Magazine — CEO &amp; Editor in Chief</li>
-            <li>LaBoard Ojo Adesan Ambrose &amp; Ruphina Foundation (LAARF)</li>
-            <li>Ruphina Ojo Adesan Global Ministries</li>
+            {ministry.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
 
           <div className="ministry__brands">
             <figure className="ministry__brand">
               <img
-                src={`${process.env.PUBLIC_URL}/brand/laarf-foundation.png`}
-                alt="LaBoard Ojo Adesan Ambrose & Ruphina Foundation emblem with Wisdom Magazine"
+                src={images.laarfLogo}
+                alt={imageAlts.laarfLogo}
                 loading="lazy"
                 decoding="async"
               />
             </figure>
             <figure className="ministry__brand">
               <img
-                src={`${process.env.PUBLIC_URL}/brand/global-ministries.png`}
-                alt="Ruphina Ojo Adesan Global Ministries logo"
+                src={images.globalMinistriesLogo}
+                alt={imageAlts.globalMinistriesLogo}
                 loading="lazy"
                 decoding="async"
               />
@@ -148,17 +138,13 @@ function Home() {
 
       <section className="publications" id="publications">
         <div className="publications__inner">
-          <h2 className="publications__title">Wisdom Magazine</h2>
-          <p className="publications__lede">
-            As CEO and Editor in Chief, she publishes Wisdom Magazine — faith,
-            leadership, community, and victorious living for readers in the UK
-            and beyond.
-          </p>
+          <h2 className="publications__title">{publications.title}</h2>
+          <p className="publications__lede">{publications.lede}</p>
 
           <figure className="publications__showcase">
             <img
-              src={`${process.env.PUBLIC_URL}/brand/publications/wisdom-magazine-covers.png`}
-              alt="Collection of Wisdom Magazine covers featuring leadership, ministry, health, and community stories"
+              src={images.magazineCovers}
+              alt={publications.imageAlt}
               loading="lazy"
               decoding="async"
             />
@@ -168,16 +154,13 @@ function Home() {
 
       <section className="book" id="book">
         <div className="book__inner">
-          <h2 className="book__title">Wisdom for Victorious Living</h2>
-          <p className="book__lede">
-            A Wisdom Book — her testimony of the rough, thorny road to the top
-            in the National Health Service as a Black female Christian.
-          </p>
+          <h2 className="book__title">{book.title}</h2>
+          <p className="book__lede">{book.lede}</p>
 
           <figure className="book__showcase">
             <img
-              src={`${process.env.PUBLIC_URL}/brand/publications/wisdom-book-gallery.png`}
-              alt="Copies of the book Wisdom for Victorious Living arranged for distribution"
+              src={images.bookGallery}
+              alt={book.imageAlt}
               loading="lazy"
               decoding="async"
             />
@@ -187,15 +170,12 @@ function Home() {
 
       <section className="sabbath" id="sabbath">
         <div className="sabbath__inner">
-          <h2 className="sabbath__title">Saturdays · Sabbath Fellowship</h2>
-          <p className="sabbath__lede">
-            Join the live gathering at 12 noon with Ruphina Ojo Adesan Global
-            Ministries — streaming on Instagram, Facebook, TikTok, and YouTube.
-          </p>
+          <h2 className="sabbath__title">{sabbath.title}</h2>
+          <p className="sabbath__lede">{sabbath.lede}</p>
 
           <p className="sabbath__meta">
-            <span className="sabbath__live">Live</span>
-            <span>Service time · 12 noon</span>
+            <span className="sabbath__live">{sabbath.liveLabel}</span>
+            <span>{sabbath.timeLabel}</span>
           </p>
 
           <nav className="socials" aria-label="Social media">
@@ -214,23 +194,20 @@ function Home() {
 
           <p className="sabbath__linktree-wrap">
             <Link className="sabbath__linktree-btn" to="/links">
-              Open link tree
+              {sabbath.linkTreeLabel}
             </Link>
           </p>
 
           <figure className="sabbath__flyer">
             <img
-              src={`${process.env.PUBLIC_URL}/brand/sabbath-flyer.png`}
-              alt="Wisdom Ministries UK Sabbath Fellowship invitation featuring Evang. Dr. Ruphina Ojo Adesan"
+              src={images.sabbathFlyer}
+              alt={sabbath.flyerAlt}
               loading="lazy"
               decoding="async"
             />
           </figure>
 
-          <p className="sabbath__note">
-            She also leads a daily health challenge, inviting others into steadier,
-            healthier living.
-          </p>
+          <p className="sabbath__note">{sabbath.note}</p>
         </div>
       </section>
     </div>

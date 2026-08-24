@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# Ruphina Adesan website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Personal site for Evang. Dr. Ruphina Ojo Adesan. React app deployed on Vercel. Editable content is powered by Supabase.
 
-## Available Scripts
+## Local development
 
-In the project directory, you can run:
+```bash
+npm install
+cp .env.example .env
+# fill in REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY
+npm start
+```
 
-### `npm start`
+## Admin dashboard (Supabase)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The public site reads text and image URLs from Supabase. She edits them at **`/admin`** (no link in the public nav — share that URL with her).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. Create a Supabase project
 
-### `npm test`
+1. Go to [supabase.com](https://supabase.com) and create a project.
+2. Open **Project Settings → API** and copy:
+   - Project URL → `REACT_APP_SUPABASE_URL`
+   - `anon` `public` key → `REACT_APP_SUPABASE_ANON_KEY`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Run the database + storage SQL
 
-### `npm run build`
+In Supabase → **SQL Editor**, paste and run [`supabase/schema.sql`](supabase/schema.sql).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+That creates:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `site_content` table (one JSON document, `id = 1`)
+- RLS: anyone can read; only signed-in users can write
+- Public Storage bucket `site-media` with matching policies
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+If the bucket insert fails, create a **public** bucket named `site-media` under **Storage**, then re-run the storage policies section of the SQL file.
 
-### `npm run eject`
+### 3. Create the admin login
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Supabase → **Authentication → Users → Add user**
+2. Create one user with email + password (the credentials she will use on `/admin`)
+3. Confirm the user if your project requires email confirmation (or disable confirmations for this single admin project under Auth settings)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4. Add env vars on Vercel
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+In the Vercel project → **Settings → Environment Variables**:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Name | Value |
+| --- | --- |
+| `REACT_APP_SUPABASE_URL` | `https://YOUR_PROJECT_REF.supabase.co` |
+| `REACT_APP_SUPABASE_ANON_KEY` | your anon public key |
 
-## Learn More
+Redeploy after saving env vars (CRA bakes these in at build time).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 5. First edit
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Open `https://your-domain/admin`
+2. Sign in with the Auth user
+3. Edit text / upload photos
+4. Click **Save**
 
-### Code Splitting
+Until the first successful save, the site uses the built-in defaults in `src/data/defaultContent.js`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Routes
 
-### Analyzing the Bundle Size
+- `/` — home
+- `/links` — link tree
+- `/admin` — content editor (Supabase Auth)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Scripts
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `npm start` — local dev
+- `npm run build` — production build
+- `npm test` — tests

@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
-import { linkTreeLinks } from '../data/links';
+import { useContent } from '../content/ContentProvider';
 import './LinkTree.css';
 
 function LinkTree() {
+  const { content } = useContent();
+  const { linkTree, linkTreeLinks, images } = content;
+
   return (
     <div className="linktree">
       <div className="linktree__glow" aria-hidden="true" />
@@ -10,14 +13,12 @@ function LinkTree() {
       <header className="linktree__header">
         <img
           className="linktree__avatar"
-          src={`${process.env.PUBLIC_URL}/brand/ruphina-portrait.png`}
-          alt="Evang. Dr. Ruphina Ojo Adesan"
+          src={images.portrait}
+          alt={linkTree.avatarAlt}
         />
-        <p className="linktree__eyebrow">Evang. Dr. · UK Clergy</p>
-        <h1 className="linktree__name">Ruphina Ojo Adesan</h1>
-        <p className="linktree__lede">
-          Author &amp; Publisher · Wisdom Ministries UK · Sabbath &amp; wellness
-        </p>
+        <p className="linktree__eyebrow">{linkTree.eyebrow}</p>
+        <h1 className="linktree__name">{linkTree.name}</h1>
+        <p className="linktree__lede">{linkTree.lede}</p>
       </header>
 
       <nav className="linktree__list" aria-label="Links">
@@ -44,9 +45,7 @@ function LinkTree() {
         })}
       </nav>
 
-      <p className="linktree__footer">
-        Glory to God Most High
-      </p>
+      <p className="linktree__footer">{linkTree.footer}</p>
     </div>
   );
 }
