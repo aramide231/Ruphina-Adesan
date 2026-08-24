@@ -189,7 +189,7 @@ function Admin() {
 
     if (!isSupabaseConfigured || !supabase) {
       setAuthError(
-        'Supabase is not configured. Add REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY, then redeploy.'
+        'Supabase is not configured. Add REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY, then restart the app.'
       );
       setAuthBusy(false);
       return;
@@ -211,6 +211,8 @@ function Admin() {
     if (supabase) {
       await supabase.auth.signOut();
     }
+    setSession(null);
+    setAuthError('');
     setStatus('');
     setError('');
   };

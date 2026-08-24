@@ -13,7 +13,7 @@ npm start
 
 ## Admin dashboard (Supabase)
 
-The public site reads text and image URLs from Supabase. She edits them at **`/admin`** (no link in the public nav — share that URL with her).
+The public site reads text and image URLs from Supabase. Edits are made at **`/admin`**.
 
 ### 1. Create a Supabase project
 
@@ -37,8 +37,8 @@ If the bucket insert fails, create a **public** bucket named `site-media` under 
 ### 3. Create the admin login
 
 1. Supabase → **Authentication → Users → Add user**
-2. Create one user with email + password (the credentials she will use on `/admin`)
-3. Confirm the user if your project requires email confirmation (or disable confirmations for this single admin project under Auth settings)
+2. Create one user with email + password (the credentials used on `/admin`)
+3. Confirm the user if your project requires email confirmation (or disable confirmations under Auth settings)
 
 ### 4. Add env vars on Vercel
 
