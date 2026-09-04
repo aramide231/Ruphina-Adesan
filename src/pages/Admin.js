@@ -8,7 +8,8 @@ import './Admin.css';
 const TABS = [
   { id: 'about', label: 'About' },
   { id: 'sabbath', label: 'Sabbath' },
-  { id: 'links', label: 'Links' }
+  { id: 'links', label: 'Links' },
+  { id: 'more', label: 'More content' }
 ];
 
 function cloneContent(value) {
@@ -114,6 +115,26 @@ function Admin() {
     });
   };
 
+  const addAboutParagraph = () => {
+    setDraft((prev) => ({
+      ...prev,
+      about: {
+        ...prev.about,
+        paragraphs: [...prev.about.paragraphs, 'New paragraph']
+      }
+    }));
+  };
+
+  const removeAboutParagraph = (index) => {
+    setDraft((prev) => ({
+      ...prev,
+      about: {
+        ...prev.about,
+        paragraphs: prev.about.paragraphs.filter((_, i) => i !== index)
+      }
+    }));
+  };
+
   const updateMinistryItem = (index, value) => {
     setDraft((prev) => {
       const items = [...prev.ministry.items];
@@ -152,6 +173,89 @@ function Admin() {
       );
       return { ...prev, socials };
     });
+  };
+
+  const addSocial = () => {
+    setDraft((prev) => ({
+      ...prev,
+      socials: [
+        ...prev.socials,
+        {
+          id: `social-${Date.now()}`,
+          name: 'New social',
+          href: 'https://'
+        }
+      ]
+    }));
+  };
+
+  const removeSocial = (index) => {
+    setDraft((prev) => ({
+      ...prev,
+      socials: prev.socials.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateExtraSection = (index, key, value) => {
+    setDraft((prev) => {
+      const extraSections = prev.extraSections.map((item, i) =>
+        i === index ? { ...item, [key]: value } : item
+      );
+      return { ...prev, extraSections };
+    });
+  };
+
+  const addExtraSection = () => {
+    setDraft((prev) => ({
+      ...prev,
+      extraSections: [
+        ...prev.extraSections,
+        {
+          id: `extra-${Date.now()}`,
+          title: 'New section',
+          lede: 'Add your story, announcement, or update here.',
+          image: '',
+          imageAlt: ''
+        }
+      ]
+    }));
+  };
+
+  const removeExtraSection = (index) => {
+    setDraft((prev) => ({
+      ...prev,
+      extraSections: prev.extraSections.filter((_, i) => i !== index)
+    }));
+  };
+
+  const moveExtraSection = (index, direction) => {
+    setDraft((prev) => {
+      const next = [...prev.extraSections];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      return { ...prev, extraSections: next };
+    });
+  };
+
+  const handleExtraPhotoUpload = async (index, file) => {
+    if (!file) return;
+    const key = `extra-${draft.extraSections[index]?.id || index}`;
+    setUploadingKey(key);
+    setStatus('');
+    setError('');
+
+    const result = await uploadImage(file, key);
+    setUploadingKey('');
+
+    if (!result.ok) {
+      setError(result.error || 'Upload failed.');
+      return;
+    }
+
+    updateExtraSection(index, 'image', result.url);
+    setStatus('Section photo uploaded. Click Save to publish.');
   };
 
   const updateLink = (index, key, value) => {
@@ -412,15 +516,28 @@ function Admin() {
               />
             </Field>
             {draft.about.paragraphs.map((paragraph, index) => (
-              <Field key={`about-${index}`} label={`Paragraph ${index + 1}`}>
-                <textarea
-                  className="admin__textarea"
-                  rows={4}
-                  value={paragraph}
-                  onChange={(e) => updateAboutParagraph(index, e.target.value)}
-                />
-              </Field>
+              <div key={`about-${index}`} className="admin__card-block">
+                <Field label={`Paragraph ${index + 1}`}>
+                  <textarea
+                    className="admin__textarea"
+                    rows={4}
+                    value={paragraph}
+                    onChange={(e) => updateAboutParagraph(index, e.target.value)}
+                  />
+                </Field>
+                <button
+                  type="button"
+                  className="admin__btn admin__btn--danger"
+                  onClick={() => removeAboutParagraph(index)}
+                  disabled={draft.about.paragraphs.length <= 1}
+                >
+                  Remove paragraph
+                </button>
+              </div>
             ))}
+            <button type="button" className="admin__btn admin__btn--ghost" onClick={addAboutParagraph}>
+              Add paragraph
+            </button>
             <Field label="Verse">
               <textarea
                 className="admin__textarea"
@@ -600,8 +717,18 @@ function Admin() {
                     onChange={(e) => updateSocial(index, 'href', e.target.value)}
                   />
                 </Field>
+                <button
+                  type="button"
+                  className="admin__btn admin__btn--danger"
+                  onClick={() => removeSocial(index)}
+                >
+                  Remove
+                </button>
               </div>
             ))}
+            <button type="button" className="admin__btn admin__btn--ghost" onClick={addSocial}>
+              Add social link
+            </button>
           </div>
         ) : null}
 
@@ -690,6 +817,77 @@ function Admin() {
             ))}
             <button type="button" className="admin__btn admin__btn--ghost" onClick={addLink}>
               Add link
+            </button>
+          </div>
+        ) : null}
+
+        {tab === 'more' ? (
+          <div className="admin__stack">
+            <p className="admin__hint">
+              Add new sections to the homepage. Each one can have a title, text, and an optional
+              photo. They appear after the book section and before Sabbath.
+            </p>
+            {draft.extraSections.map((section, index) => (
+              <div key={section.id} className="admin__card-block">
+                <h2 className="admin__section-title">Section {index + 1}</h2>
+                <Field label="Title">
+                  <input
+                    className="admin__input"
+                    value={section.title}
+                    onChange={(e) => updateExtraSection(index, 'title', e.target.value)}
+                  />
+                </Field>
+                <Field label="Text">
+                  <textarea
+                    className="admin__textarea"
+                    rows={4}
+                    value={section.lede}
+                    onChange={(e) => updateExtraSection(index, 'lede', e.target.value)}
+                  />
+                </Field>
+                <Field label="Photo alt text">
+                  <input
+                    className="admin__input"
+                    value={section.imageAlt}
+                    onChange={(e) => updateExtraSection(index, 'imageAlt', e.target.value)}
+                    placeholder="Describe the photo"
+                  />
+                </Field>
+                <PhotoField
+                  label="Section photo (optional)"
+                  imageSrc={section.image}
+                  uploading={uploadingKey === `extra-${section.id}`}
+                  onUpload={(file) => handleExtraPhotoUpload(index, file)}
+                />
+                <div className="admin__inline-actions">
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveExtraSection(index, -1)}
+                    disabled={index === 0}
+                  >
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveExtraSection(index, 1)}
+                    disabled={index === draft.extraSections.length - 1}
+                  >
+                    Down
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--danger"
+                    onClick={() => removeExtraSection(index)}
+                  >
+                    Remove section
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button type="button" className="admin__btn admin__btn--ghost" onClick={addExtraSection}>
+              Add new section
             </button>
           </div>
         ) : null}

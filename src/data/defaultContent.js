@@ -131,7 +131,8 @@ export const defaultContent = {
     laarfLogo:
       'LaBoard Ojo Adesan Ambrose & Ruphina Foundation emblem with Wisdom Magazine',
     globalMinistriesLogo: 'Ruphina Ojo Adesan Global Ministries logo'
-  }
+  },
+  extraSections: []
 };
 
 export function mergeContent(partial) {
@@ -166,6 +167,15 @@ export function mergeContent(partial) {
       ? partial.linkTreeLinks
       : defaultContent.linkTreeLinks,
     images: { ...defaultContent.images, ...(partial.images || {}) },
-    imageAlts: { ...defaultContent.imageAlts, ...(partial.imageAlts || {}) }
+    imageAlts: { ...defaultContent.imageAlts, ...(partial.imageAlts || {}) },
+    extraSections: Array.isArray(partial.extraSections)
+      ? partial.extraSections.map((section) => ({
+          id: section.id || `extra-${Date.now()}`,
+          title: section.title || 'New section',
+          lede: section.lede || '',
+          image: section.image || '',
+          imageAlt: section.imageAlt || ''
+        }))
+      : defaultContent.extraSections
   };
 }

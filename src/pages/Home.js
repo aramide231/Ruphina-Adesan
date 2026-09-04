@@ -43,7 +43,7 @@ function Home() {
   const isPhone = useIsPhone();
   const reducedMotion = usePrefersReducedMotion();
   const showBallpit = !reducedMotion;
-  const { hero, about, ministry, publications, book, sabbath, socials, images, imageAlts } =
+  const { hero, about, ministry, publications, book, sabbath, socials, images, imageAlts, extraSections } =
     content;
 
   return (
@@ -167,6 +167,29 @@ function Home() {
           </figure>
         </div>
       </section>
+
+      {(extraSections || []).map((section, index) => (
+        <section
+          key={section.id}
+          className={`extra-section ${index % 2 === 0 ? 'extra-section--a' : 'extra-section--b'}`}
+          id={section.id}
+        >
+          <div className="extra-section__inner">
+            <h2 className="extra-section__title">{section.title}</h2>
+            {section.lede ? <p className="extra-section__lede">{section.lede}</p> : null}
+            {section.image ? (
+              <figure className="extra-section__showcase">
+                <img
+                  src={section.image}
+                  alt={section.imageAlt || section.title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            ) : null}
+          </div>
+        </section>
+      ))}
 
       <section className="sabbath" id="sabbath">
         <div className="sabbath__inner">

@@ -196,6 +196,7 @@ body {
 .ministry,
 .publications,
 .book,
+.extra-section,
 .sabbath {
   position: relative;
   z-index: 1;
@@ -222,6 +223,14 @@ body {
   background: linear-gradient(165deg, var(--ink-soft) 0%, #152018 60%, var(--ink) 100%);
 }
 
+.extra-section--a {
+  background: linear-gradient(180deg, #121814 0%, #1a221c 100%);
+}
+
+.extra-section--b {
+  background: linear-gradient(165deg, var(--ink-soft) 0%, #152018 55%, var(--ink) 100%);
+}
+
 .sabbath {
   background: linear-gradient(180deg, var(--ink) 0%, #121814 100%);
   padding-bottom: max(var(--section-pad-y), env(safe-area-inset-bottom));
@@ -231,6 +240,7 @@ body {
 .ministry__inner,
 .publications__inner,
 .book__inner,
+.extra-section__inner,
 .sabbath__inner {
   margin: 0 auto;
   width: 100%;
@@ -243,7 +253,8 @@ body {
 }
 
 .publications__inner,
-.book__inner {
+.book__inner,
+.extra-section__inner {
   max-width: 48rem;
 }
 
@@ -251,6 +262,7 @@ body {
 .ministry__title,
 .publications__title,
 .book__title,
+.extra-section__title,
 .sabbath__title {
   margin: 0 0 1.1rem;
   font-family: var(--font-display);
@@ -266,6 +278,7 @@ body {
 .ministry__lede,
 .publications__lede,
 .book__lede,
+.extra-section__lede,
 .sabbath__lede,
 .sabbath__note {
   margin: 0;
@@ -387,17 +400,20 @@ body {
 }
 
 .publications__lede,
-.book__lede {
+.book__lede,
+.extra-section__lede {
   margin-bottom: 1.75rem;
 }
 
 .publications__showcase,
-.book__showcase {
+.book__showcase,
+.extra-section__showcase {
   margin: 0;
 }
 
 .publications__showcase img,
-.book__showcase img {
+.book__showcase img,
+.extra-section__showcase img {
   display: block;
   width: 100%;
   height: auto;
@@ -406,13 +422,15 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   .publications__showcase,
-  .book__showcase {
+  .book__showcase,
+  .extra-section__showcase {
     opacity: 0;
     transform: translateY(1.25rem);
     animation: reveal-up 0.9s ease forwards;
   }
 
-  .book__showcase {
+  .book__showcase,
+  .extra-section__showcase {
     animation-delay: 0.12s;
   }
 }
