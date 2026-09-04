@@ -9,8 +9,22 @@ const TABS = [
   { id: 'about', label: 'About' },
   { id: 'sabbath', label: 'Sabbath' },
   { id: 'links', label: 'Links' },
-  { id: 'more', label: 'More content' }
+  { id: 'announcements', label: 'Announcements' },
+  { id: 'programs', label: 'Programs & flyers' },
+  { id: 'words', label: 'Daily Words' }
 ];
+
+function todayLabel() {
+  try {
+    return new Date().toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch {
+    return '';
+  }
+}
 
 function cloneContent(value) {
   return mergeContent(JSON.parse(JSON.stringify(value)));
@@ -196,52 +210,87 @@ function Admin() {
     }));
   };
 
-  const updateExtraSection = (index, key, value) => {
+  const updateListItem = (listKey, index, key, value) => {
     setDraft((prev) => {
-      const extraSections = prev.extraSections.map((item, i) =>
-        i === index ? { ...item, [key]: value } : item
-      );
-      return { ...prev, extraSections };
+      const list = [...(prev[listKey] || [])];
+      list[index] = { ...list[index], [key]: value };
+      return { ...prev, [listKey]: list };
     });
   };
 
-  const addExtraSection = () => {
+  const removeListItem = (listKey, index) => {
     setDraft((prev) => ({
       ...prev,
-      extraSections: [
-        ...prev.extraSections,
-        {
-          id: `extra-${Date.now()}`,
-          title: 'New section',
-          lede: 'Add your story, announcement, or update here.',
-          image: '',
-          imageAlt: ''
-        }
-      ]
+      [listKey]: (prev[listKey] || []).filter((_, i) => i !== index)
     }));
   };
 
-  const removeExtraSection = (index) => {
-    setDraft((prev) => ({
-      ...prev,
-      extraSections: prev.extraSections.filter((_, i) => i !== index)
-    }));
-  };
-
-  const moveExtraSection = (index, direction) => {
+  const moveListItem = (listKey, index, direction) => {
     setDraft((prev) => {
-      const next = [...prev.extraSections];
+      const next = [...(prev[listKey] || [])];
       const target = index + direction;
       if (target < 0 || target >= next.length) return prev;
       const [item] = next.splice(index, 1);
       next.splice(target, 0, item);
-      return { ...prev, extraSections: next };
+      return { ...prev, [listKey]: next };
     });
   };
 
-  const handleExtraPhotoUpload = async (index, file) => {
+  const addAnnouncement = () => {
+    setDraft((prev) => ({
+      ...prev,
+      announcements: [
+        {
+          id: `announcement-${Date.now()}`,
+          title: 'New announcement',
+          body: 'Write your announcement here.',
+          date: todayLabel()
+        },
+        ...(prev.announcements || [])
+      ]
+    }));
+    setTab('announcements');
+  };
+
+  const addProgram = () => {
+    setDraft((prev) => ({
+      ...prev,
+      programs: [
+        {
+          id: `program-${Date.now()}`,
+          title: 'Upcoming program',
+          details: 'Add date, time, venue, and details.',
+          date: '',
+          flyer: '',
+          flyerAlt: ''
+        },
+        ...(prev.programs || [])
+      ]
+    }));
+    setTab('programs');
+  };
+
+  const addDailyWord = () => {
+    setDraft((prev) => ({
+      ...prev,
+      dailyWords: [
+        {
+          id: `word-${Date.now()}`,
+          title: 'Daily Word',
+          date: todayLabel(),
+          body: 'Share today’s Word here.',
+          scripture: ''
+        },
+        ...(prev.dailyWords || [])
+      ]
+    }));
+    setTab('words');
+  };
+
+  const handleProgramFlyerUpload = async (index, file) => {
     if (!file) return;
-    const key = `extra-${draft.extraSections[index]?.id || index}`;
+    const program = (draft.programs || [])[index];
+    const key = `program-${program?.id || index}`;
     setUploadingKey(key);
     setStatus('');
     setError('');
@@ -254,8 +303,8 @@ function Admin() {
       return;
     }
 
-    updateExtraSection(index, 'image', result.url);
-    setStatus('Section photo uploaded. Click Save to publish.');
+    updateListItem('programs', index, 'flyer', result.url);
+    setStatus('Program flyer uploaded. Click Save to publish.');
   };
 
   const updateLink = (index, key, value) => {
@@ -450,6 +499,21 @@ function Admin() {
 
       {status ? <p className="admin__success">{status}</p> : null}
       {error ? <p className="admin__error">{error}</p> : null}
+
+      <div className="admin__publish-bar">
+        <p className="admin__publish-label">Publish new material</p>
+        <div className="admin__publish-actions">
+          <button type="button" className="admin__btn admin__btn--gold" onClick={addAnnouncement}>
+            + Announcement
+          </button>
+          <button type="button" className="admin__btn admin__btn--gold" onClick={addProgram}>
+            + Program flyer
+          </button>
+          <button type="button" className="admin__btn admin__btn--gold" onClick={addDailyWord}>
+            + Daily Word
+          </button>
+        </div>
+      </div>
 
       <nav className="admin__tabs" aria-label="Editor sections">
         {TABS.map((item) => (
@@ -821,49 +885,70 @@ function Admin() {
           </div>
         ) : null}
 
-        {tab === 'more' ? (
+        {tab === 'announcements' ? (
           <div className="admin__stack">
             <p className="admin__hint">
-              Add new sections to the homepage. Each one can have a title, text, and an optional
-              photo. They appear after the book section and before Sabbath.
+              Post news and notices. Click <strong>Add announcement</strong>, write it, then Save.
             </p>
-            {draft.extraSections.map((section, index) => (
-              <div key={section.id} className="admin__card-block">
-                <h2 className="admin__section-title">Section {index + 1}</h2>
+            <Field label="Section title on website">
+              <input
+                className="admin__input"
+                value={draft.announcementsHeading.title}
+                onChange={(e) =>
+                  updateSection('announcementsHeading', 'title', e.target.value)
+                }
+              />
+            </Field>
+            <Field label="Section intro">
+              <textarea
+                className="admin__textarea"
+                rows={2}
+                value={draft.announcementsHeading.lede}
+                onChange={(e) =>
+                  updateSection('announcementsHeading', 'lede', e.target.value)
+                }
+              />
+            </Field>
+            <button type="button" className="admin__btn admin__btn--gold" onClick={addAnnouncement}>
+              + Add announcement
+            </button>
+            {(draft.announcements || []).map((item, index) => (
+              <div key={item.id} className="admin__card-block">
+                <h2 className="admin__section-title">Announcement {index + 1}</h2>
                 <Field label="Title">
                   <input
                     className="admin__input"
-                    value={section.title}
-                    onChange={(e) => updateExtraSection(index, 'title', e.target.value)}
+                    value={item.title}
+                    onChange={(e) =>
+                      updateListItem('announcements', index, 'title', e.target.value)
+                    }
                   />
                 </Field>
-                <Field label="Text">
-                  <textarea
-                    className="admin__textarea"
-                    rows={4}
-                    value={section.lede}
-                    onChange={(e) => updateExtraSection(index, 'lede', e.target.value)}
-                  />
-                </Field>
-                <Field label="Photo alt text">
+                <Field label="Date (optional)">
                   <input
                     className="admin__input"
-                    value={section.imageAlt}
-                    onChange={(e) => updateExtraSection(index, 'imageAlt', e.target.value)}
-                    placeholder="Describe the photo"
+                    value={item.date}
+                    onChange={(e) =>
+                      updateListItem('announcements', index, 'date', e.target.value)
+                    }
+                    placeholder="e.g. 4 Sep 2026"
                   />
                 </Field>
-                <PhotoField
-                  label="Section photo (optional)"
-                  imageSrc={section.image}
-                  uploading={uploadingKey === `extra-${section.id}`}
-                  onUpload={(file) => handleExtraPhotoUpload(index, file)}
-                />
+                <Field label="Announcement text">
+                  <textarea
+                    className="admin__textarea"
+                    rows={5}
+                    value={item.body}
+                    onChange={(e) =>
+                      updateListItem('announcements', index, 'body', e.target.value)
+                    }
+                  />
+                </Field>
                 <div className="admin__inline-actions">
                   <button
                     type="button"
                     className="admin__btn admin__btn--ghost"
-                    onClick={() => moveExtraSection(index, -1)}
+                    onClick={() => moveListItem('announcements', index, -1)}
                     disabled={index === 0}
                   >
                     Up
@@ -871,24 +956,205 @@ function Admin() {
                   <button
                     type="button"
                     className="admin__btn admin__btn--ghost"
-                    onClick={() => moveExtraSection(index, 1)}
-                    disabled={index === draft.extraSections.length - 1}
+                    onClick={() => moveListItem('announcements', index, 1)}
+                    disabled={index === draft.announcements.length - 1}
                   >
                     Down
                   </button>
                   <button
                     type="button"
                     className="admin__btn admin__btn--danger"
-                    onClick={() => removeExtraSection(index)}
+                    onClick={() => removeListItem('announcements', index)}
                   >
-                    Remove section
+                    Remove
                   </button>
                 </div>
               </div>
             ))}
-            <button type="button" className="admin__btn admin__btn--ghost" onClick={addExtraSection}>
-              Add new section
+          </div>
+        ) : null}
+
+        {tab === 'programs' ? (
+          <div className="admin__stack">
+            <p className="admin__hint">
+              Upload flyers for upcoming programs. Click <strong>Add program flyer</strong>, add
+              details and a photo, then Save.
+            </p>
+            <Field label="Section title on website">
+              <input
+                className="admin__input"
+                value={draft.programsHeading.title}
+                onChange={(e) => updateSection('programsHeading', 'title', e.target.value)}
+              />
+            </Field>
+            <Field label="Section intro">
+              <textarea
+                className="admin__textarea"
+                rows={2}
+                value={draft.programsHeading.lede}
+                onChange={(e) => updateSection('programsHeading', 'lede', e.target.value)}
+              />
+            </Field>
+            <button type="button" className="admin__btn admin__btn--gold" onClick={addProgram}>
+              + Add program flyer
             </button>
+            {(draft.programs || []).map((item, index) => (
+              <div key={item.id} className="admin__card-block">
+                <h2 className="admin__section-title">Program {index + 1}</h2>
+                <Field label="Program title">
+                  <input
+                    className="admin__input"
+                    value={item.title}
+                    onChange={(e) => updateListItem('programs', index, 'title', e.target.value)}
+                  />
+                </Field>
+                <Field label="Date / time">
+                  <input
+                    className="admin__input"
+                    value={item.date}
+                    onChange={(e) => updateListItem('programs', index, 'date', e.target.value)}
+                    placeholder="e.g. Saturday 12 noon"
+                  />
+                </Field>
+                <Field label="Details">
+                  <textarea
+                    className="admin__textarea"
+                    rows={4}
+                    value={item.details}
+                    onChange={(e) => updateListItem('programs', index, 'details', e.target.value)}
+                  />
+                </Field>
+                <Field label="Flyer alt text">
+                  <input
+                    className="admin__input"
+                    value={item.flyerAlt}
+                    onChange={(e) => updateListItem('programs', index, 'flyerAlt', e.target.value)}
+                    placeholder="Describe the flyer"
+                  />
+                </Field>
+                <PhotoField
+                  label="Upload flyer image"
+                  imageSrc={item.flyer}
+                  uploading={uploadingKey === `program-${item.id}`}
+                  onUpload={(file) => handleProgramFlyerUpload(index, file)}
+                />
+                <div className="admin__inline-actions">
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveListItem('programs', index, -1)}
+                    disabled={index === 0}
+                  >
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveListItem('programs', index, 1)}
+                    disabled={index === draft.programs.length - 1}
+                  >
+                    Down
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--danger"
+                    onClick={() => removeListItem('programs', index)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {tab === 'words' ? (
+          <div className="admin__stack">
+            <p className="admin__hint">
+              Publish daily Words for the website. Click <strong>Add Daily Word</strong>, write it,
+              then Save.
+            </p>
+            <Field label="Section title on website">
+              <input
+                className="admin__input"
+                value={draft.dailyWordsHeading.title}
+                onChange={(e) => updateSection('dailyWordsHeading', 'title', e.target.value)}
+              />
+            </Field>
+            <Field label="Section intro">
+              <textarea
+                className="admin__textarea"
+                rows={2}
+                value={draft.dailyWordsHeading.lede}
+                onChange={(e) => updateSection('dailyWordsHeading', 'lede', e.target.value)}
+              />
+            </Field>
+            <button type="button" className="admin__btn admin__btn--gold" onClick={addDailyWord}>
+              + Add Daily Word
+            </button>
+            {(draft.dailyWords || []).map((item, index) => (
+              <div key={item.id} className="admin__card-block">
+                <h2 className="admin__section-title">Word {index + 1}</h2>
+                <Field label="Title">
+                  <input
+                    className="admin__input"
+                    value={item.title}
+                    onChange={(e) => updateListItem('dailyWords', index, 'title', e.target.value)}
+                  />
+                </Field>
+                <Field label="Date">
+                  <input
+                    className="admin__input"
+                    value={item.date}
+                    onChange={(e) => updateListItem('dailyWords', index, 'date', e.target.value)}
+                    placeholder="e.g. 4 Sep 2026"
+                  />
+                </Field>
+                <Field label="The Word">
+                  <textarea
+                    className="admin__textarea"
+                    rows={6}
+                    value={item.body}
+                    onChange={(e) => updateListItem('dailyWords', index, 'body', e.target.value)}
+                  />
+                </Field>
+                <Field label="Scripture (optional)">
+                  <input
+                    className="admin__input"
+                    value={item.scripture}
+                    onChange={(e) =>
+                      updateListItem('dailyWords', index, 'scripture', e.target.value)
+                    }
+                    placeholder="e.g. Proverbs 4:7"
+                  />
+                </Field>
+                <div className="admin__inline-actions">
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveListItem('dailyWords', index, -1)}
+                    disabled={index === 0}
+                  >
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--ghost"
+                    onClick={() => moveListItem('dailyWords', index, 1)}
+                    disabled={index === draft.dailyWords.length - 1}
+                  >
+                    Down
+                  </button>
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--danger"
+                    onClick={() => removeListItem('dailyWords', index)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         ) : null}
       </div>

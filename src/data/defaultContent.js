@@ -132,8 +132,27 @@ export const defaultContent = {
       'LaBoard Ojo Adesan Ambrose & Ruphina Foundation emblem with Wisdom Magazine',
     globalMinistriesLogo: 'Ruphina Ojo Adesan Global Ministries logo'
   },
+  announcementsHeading: {
+    title: 'Announcements',
+    lede: 'News and notices from Wisdom Ministries UK.'
+  },
+  announcements: [],
+  programsHeading: {
+    title: 'Upcoming programs',
+    lede: 'Flyers and details for gatherings, services, and special events.'
+  },
+  programs: [],
+  dailyWordsHeading: {
+    title: 'Daily Words',
+    lede: 'Fresh Word for the day — encouragement, scripture, and wisdom for victorious living.'
+  },
+  dailyWords: [],
   extraSections: []
 };
+
+function normalizeList(items, mapItem, fallback = []) {
+  return Array.isArray(items) ? items.map(mapItem) : fallback;
+}
 
 export function mergeContent(partial) {
   if (!partial || typeof partial !== 'object') {
@@ -162,12 +181,45 @@ export function mergeContent(partial) {
     book: { ...defaultContent.book, ...(partial.book || {}) },
     sabbath: { ...defaultContent.sabbath, ...(partial.sabbath || {}) },
     linkTree: { ...defaultContent.linkTree, ...(partial.linkTree || {}) },
+    announcementsHeading: {
+      ...defaultContent.announcementsHeading,
+      ...(partial.announcementsHeading || {})
+    },
+    programsHeading: {
+      ...defaultContent.programsHeading,
+      ...(partial.programsHeading || {})
+    },
+    dailyWordsHeading: {
+      ...defaultContent.dailyWordsHeading,
+      ...(partial.dailyWordsHeading || {})
+    },
     socials: Array.isArray(partial.socials) ? partial.socials : defaultContent.socials,
     linkTreeLinks: Array.isArray(partial.linkTreeLinks)
       ? partial.linkTreeLinks
       : defaultContent.linkTreeLinks,
     images: { ...defaultContent.images, ...(partial.images || {}) },
     imageAlts: { ...defaultContent.imageAlts, ...(partial.imageAlts || {}) },
+    announcements: normalizeList(partial.announcements, (item) => ({
+      id: item.id || `announcement-${Date.now()}`,
+      title: item.title || 'New announcement',
+      body: item.body || '',
+      date: item.date || ''
+    })),
+    programs: normalizeList(partial.programs, (item) => ({
+      id: item.id || `program-${Date.now()}`,
+      title: item.title || 'Upcoming program',
+      details: item.details || '',
+      date: item.date || '',
+      flyer: item.flyer || '',
+      flyerAlt: item.flyerAlt || ''
+    })),
+    dailyWords: normalizeList(partial.dailyWords, (item) => ({
+      id: item.id || `word-${Date.now()}`,
+      title: item.title || 'Daily Word',
+      date: item.date || '',
+      body: item.body || '',
+      scripture: item.scripture || ''
+    })),
     extraSections: Array.isArray(partial.extraSections)
       ? partial.extraSections.map((section) => ({
           id: section.id || `extra-${Date.now()}`,

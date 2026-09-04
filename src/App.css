@@ -196,6 +196,7 @@ body {
 .ministry,
 .publications,
 .book,
+.feed,
 .extra-section,
 .sabbath {
   position: relative;
@@ -231,6 +232,18 @@ body {
   background: linear-gradient(165deg, var(--ink-soft) 0%, #152018 55%, var(--ink) 100%);
 }
 
+.feed--announcements {
+  background: linear-gradient(180deg, #152018 0%, #1a221c 100%);
+}
+
+.feed--programs {
+  background: linear-gradient(165deg, var(--ink-soft) 0%, #152018 55%, #121814 100%);
+}
+
+.feed--words {
+  background: linear-gradient(180deg, #121814 0%, #1a221c 100%);
+}
+
 .sabbath {
   background: linear-gradient(180deg, var(--ink) 0%, #121814 100%);
   padding-bottom: max(var(--section-pad-y), env(safe-area-inset-bottom));
@@ -240,6 +253,7 @@ body {
 .ministry__inner,
 .publications__inner,
 .book__inner,
+.feed__inner,
 .extra-section__inner,
 .sabbath__inner {
   margin: 0 auto;
@@ -248,7 +262,8 @@ body {
 
 .about__inner,
 .ministry__inner,
-.sabbath__inner {
+.sabbath__inner,
+.feed__inner {
   max-width: 40rem;
 }
 
@@ -262,6 +277,7 @@ body {
 .ministry__title,
 .publications__title,
 .book__title,
+.feed__title,
 .extra-section__title,
 .sabbath__title {
   margin: 0 0 1.1rem;
@@ -278,6 +294,7 @@ body {
 .ministry__lede,
 .publications__lede,
 .book__lede,
+.feed__lede,
 .extra-section__lede,
 .sabbath__lede,
 .sabbath__note {
@@ -401,8 +418,72 @@ body {
 
 .publications__lede,
 .book__lede,
+.feed__lede,
 .extra-section__lede {
   margin-bottom: 1.75rem;
+}
+
+.feed__list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.feed__item {
+  padding: 1.15rem 0 1.35rem;
+  border-top: 1px solid rgba(247, 241, 232, 0.14);
+}
+
+.feed__item:last-child {
+  border-bottom: 1px solid rgba(247, 241, 232, 0.14);
+}
+
+.feed__date {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 201, 95, 0.9);
+}
+
+.feed__item-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 4.5vw, 1.55rem);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--paper);
+}
+
+.feed__body {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.98rem, 3.6vw, 1.08rem);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--mist);
+  white-space: pre-wrap;
+}
+
+.feed__scripture {
+  margin: 1rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(247, 241, 232, 0.88);
+}
+
+.feed__flyer {
+  margin: 1.15rem 0 0;
+}
+
+.feed__flyer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(247, 241, 232, 0.1);
 }
 
 .publications__showcase,

@@ -43,8 +43,24 @@ function Home() {
   const isPhone = useIsPhone();
   const reducedMotion = usePrefersReducedMotion();
   const showBallpit = !reducedMotion;
-  const { hero, about, ministry, publications, book, sabbath, socials, images, imageAlts, extraSections } =
-    content;
+  const {
+    hero,
+    about,
+    ministry,
+    publications,
+    book,
+    sabbath,
+    socials,
+    images,
+    imageAlts,
+    announcementsHeading,
+    announcements,
+    programsHeading,
+    programs,
+    dailyWordsHeading,
+    dailyWords,
+    extraSections
+  } = content;
 
   return (
     <div className="site">
@@ -167,6 +183,77 @@ function Home() {
           </figure>
         </div>
       </section>
+
+      {(announcements || []).length > 0 ? (
+        <section className="feed feed--announcements" id="announcements">
+          <div className="feed__inner">
+            <h2 className="feed__title">{announcementsHeading.title}</h2>
+            {announcementsHeading.lede ? (
+              <p className="feed__lede">{announcementsHeading.lede}</p>
+            ) : null}
+            <div className="feed__list">
+              {announcements.map((item) => (
+                <article key={item.id} className="feed__item">
+                  {item.date ? <p className="feed__date">{item.date}</p> : null}
+                  <h3 className="feed__item-title">{item.title}</h3>
+                  {item.body ? <p className="feed__body">{item.body}</p> : null}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {(programs || []).length > 0 ? (
+        <section className="feed feed--programs" id="programs">
+          <div className="feed__inner">
+            <h2 className="feed__title">{programsHeading.title}</h2>
+            {programsHeading.lede ? <p className="feed__lede">{programsHeading.lede}</p> : null}
+            <div className="feed__list">
+              {programs.map((item) => (
+                <article key={item.id} className="feed__item feed__item--program">
+                  {item.date ? <p className="feed__date">{item.date}</p> : null}
+                  <h3 className="feed__item-title">{item.title}</h3>
+                  {item.details ? <p className="feed__body">{item.details}</p> : null}
+                  {item.flyer ? (
+                    <figure className="feed__flyer">
+                      <img
+                        src={item.flyer}
+                        alt={item.flyerAlt || item.title}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </figure>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {(dailyWords || []).length > 0 ? (
+        <section className="feed feed--words" id="daily-words">
+          <div className="feed__inner">
+            <h2 className="feed__title">{dailyWordsHeading.title}</h2>
+            {dailyWordsHeading.lede ? (
+              <p className="feed__lede">{dailyWordsHeading.lede}</p>
+            ) : null}
+            <div className="feed__list">
+              {dailyWords.map((item) => (
+                <article key={item.id} className="feed__item feed__item--word">
+                  {item.date ? <p className="feed__date">{item.date}</p> : null}
+                  <h3 className="feed__item-title">{item.title}</h3>
+                  {item.body ? <p className="feed__body">{item.body}</p> : null}
+                  {item.scripture ? (
+                    <p className="feed__scripture">{item.scripture}</p>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {(extraSections || []).map((section, index) => (
         <section
