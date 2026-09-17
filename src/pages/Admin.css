@@ -428,8 +428,9 @@
 .admin__preview {
   display: block;
   width: 100%;
-  max-width: 22rem;
+  max-width: min(100%, 22rem);
   max-height: 14rem;
+  height: auto;
   object-fit: contain;
   background: #fff;
   border: 1px solid rgba(26, 34, 28, 0.1);
@@ -569,6 +570,17 @@ video.admin__preview {
   .admin__top-actions .admin__btn,
   .admin__sticky-actions .admin__btn {
     flex: 1 1 auto;
+  }
+
+  .admin__inline-actions .admin__btn {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
+    text-align: center;
+  }
+
+  .admin__input {
+    font-size: 0.95rem;
+    max-width: 100%;
   }
 }
 

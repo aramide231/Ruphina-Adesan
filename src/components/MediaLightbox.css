@@ -42,8 +42,17 @@
 .lightbox__image {
   display: block;
   width: 100%;
+  max-width: 100%;
+  height: auto;
   max-height: min(80dvh, 50rem);
   object-fit: contain;
   background: #0f1411;
   border: 1px solid rgba(247, 241, 232, 0.12);
+}
+
+@media (max-width: 640px) {
+  .lightbox__close {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+  }
 }

@@ -49,7 +49,12 @@ module.exports = async function handler(req, res) {
         .eq('id', 1)
         .maybeSingle();
       const posts = Array.isArray(data?.data?.mediaPosts) ? data.data.mediaPosts : [];
-      post = posts.find((item) => item.slug === slug || item.id === slug) || null;
+      post =
+        posts.find((item) => {
+          const itemSlug = String(item.slug || '').toLowerCase();
+          const itemId = String(item.id || '').toLowerCase();
+          return itemSlug === slug || itemId === slug;
+        }) || null;
     } catch {
       post = null;
     }
@@ -65,6 +70,13 @@ module.exports = async function handler(req, res) {
   );
   const image =
     post?.mediaType === 'image' && post?.mediaUrl ? post.mediaUrl : fallbackImage;
+  const videoMeta =
+    post?.mediaType === 'video' && post?.mediaUrl
+      ? `
+  <meta property="og:video" content="${escapeHtml(post.mediaUrl)}" />
+  <meta property="og:video:type" content="video/mp4" />
+  <meta name="twitter:player" content="${escapeHtml(post.mediaUrl)}" />`
+      : '';
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=120');
@@ -80,7 +92,7 @@ module.exports = async function handler(req, res) {
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
   <meta property="og:url" content="${escapeHtml(url)}" />
-  <meta property="og:image" content="${escapeHtml(image)}" />
+  <meta property="og:image" content="${escapeHtml(image)}" />${videoMeta}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${title}" />
   <meta name="twitter:description" content="${description}" />

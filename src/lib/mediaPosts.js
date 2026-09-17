@@ -77,6 +77,19 @@ export function postShareUrl(slug) {
   return `${window.location.origin}${postSharePath(slug)}`;
 }
 
+export function findMediaPost(posts, slugOrId) {
+  const needle = decodeURIComponent(String(slugOrId || '')).trim().toLowerCase();
+  if (!needle) return null;
+  const list = Array.isArray(posts) ? posts : [];
+  return (
+    list.find((item) => {
+      const slug = String(item.slug || '').toLowerCase();
+      const id = String(item.id || '').toLowerCase();
+      return slug === needle || id === needle;
+    }) || null
+  );
+}
+
 export async function copyText(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);

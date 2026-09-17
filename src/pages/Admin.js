@@ -7,7 +7,9 @@ import {
   createMediaSlug,
   formatPostDate,
   getMediaType,
+  postSharePath,
   postShareUrl,
+  sortMediaPosts,
   validateMediaFile
 } from '../lib/mediaPosts';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
@@ -488,9 +490,9 @@ function Admin() {
     const url = postShareUrl(post.slug);
     try {
       await copyText(url);
-      setStatus(`Share link copied: ${url}`);
+      setStatus(`Share link copied. Paste it in WhatsApp, Facebook, X, or Telegram: ${url}`);
     } catch {
-      setError('Could not copy the share link.');
+      setError(`Could not copy the share link. Copy it manually: ${url}`);
     }
   };
 
@@ -1184,7 +1186,7 @@ function Admin() {
             {(draft.mediaPosts || []).length === 0 ? (
               <p className="admin__hint">No media posts yet. Publish your first one above.</p>
             ) : null}
-            {(draft.mediaPosts || []).map((post) => (
+            {sortMediaPosts(draft.mediaPosts || []).map((post) => (
               <div key={post.id} className="admin__card-block">
                 <p className="admin__label">{formatPostDate(post.createdAt)}</p>
                 {post.mediaType === 'video' ? (
@@ -1244,7 +1246,14 @@ function Admin() {
                     <p className="admin__hint" style={{ marginTop: 0 }}>
                       {post.caption || '(No caption)'}
                     </p>
-                    <p className="admin__status">Link: /media/{post.slug}</p>
+                    <Field label="Share link (unique post URL)">
+                      <input
+                        className="admin__input"
+                        readOnly
+                        value={postShareUrl(post.slug)}
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </Field>
                     <div className="admin__inline-actions">
                       <button
                         type="button"
@@ -1258,8 +1267,16 @@ function Admin() {
                         className="admin__btn admin__btn--ghost"
                         onClick={() => shareMediaPost(post)}
                       >
-                        Share link
+                        Copy share link
                       </button>
+                      <a
+                        className="admin__btn admin__btn--ghost"
+                        href={postSharePath(post.slug)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open post
+                      </a>
                       <button
                         type="button"
                         className="admin__btn admin__btn--danger"

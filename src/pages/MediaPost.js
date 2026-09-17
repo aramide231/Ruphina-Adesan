@@ -1,15 +1,14 @@
 import { Link, useParams } from 'react-router-dom';
 import { MediaFeedCard } from '../components/MediaFeed';
 import { useContent } from '../content/ContentProvider';
-import { postShareUrl } from '../lib/mediaPosts';
+import { findMediaPost, postShareUrl } from '../lib/mediaPosts';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
 import './MediaPost.css';
 
 function MediaPost() {
-  const { slug } = useParams();
+  const { slug: rawSlug } = useParams();
   const { content, loading } = useContent();
-  const posts = content.mediaPosts || [];
-  const post = posts.find((item) => item.slug === slug || item.id === slug);
+  const post = findMediaPost(content.mediaPosts, rawSlug);
 
   const title = post
     ? `${(post.caption || 'Media post').slice(0, 60)} · Ruphina Ojo Adesan`
@@ -57,8 +56,14 @@ function MediaPost() {
     <div className="media-post-page">
       <div className="media-post-page__inner">
         <p className="media-post-page__eyebrow">Media / Posts</p>
-        <h1 className="media-post-page__title">Shared post</h1>
-        <MediaFeedCard post={post} />
+        <h1 className="media-post-page__title">
+          {post.caption?.trim() ? post.caption.slice(0, 80) : 'Media post'}
+        </h1>
+        <MediaFeedCard
+          post={post}
+          avatarUrl={content.images?.portrait}
+          authorName={content.hero?.name || 'Evang. Dr. Ruphina Ojo Adesan'}
+        />
         <p className="media-post-page__nav">
           <Link to="/#media">All posts</Link>
           <Link to="/">Home</Link>

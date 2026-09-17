@@ -186,9 +186,12 @@ function Home() {
         </div>
       </section>
 
-      {(mediaPosts || []).length > 0 ? (
-        <MediaFeed heading={mediaHeading} posts={mediaPosts} />
-      ) : null}
+      <MediaFeed
+        heading={mediaHeading}
+        posts={mediaPosts || []}
+        avatarUrl={images.portrait}
+        authorName={hero.name}
+      />
 
       {(announcements || []).length > 0 ? (
         <section className="feed feed--announcements" id="announcements">
