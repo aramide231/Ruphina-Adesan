@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import SiteMenu from '../components/SiteMenu';
 import { useContent } from '../content/ContentProvider';
+import '../App.css';
 import './LinkTree.css';
 
 function LinkTree() {
@@ -8,6 +10,7 @@ function LinkTree() {
 
   return (
     <div className="linktree">
+      <SiteMenu />
       <div className="linktree__glow" aria-hidden="true" />
 
       <header className="linktree__header">

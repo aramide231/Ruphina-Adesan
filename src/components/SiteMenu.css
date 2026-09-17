@@ -1,0 +1,179 @@
+.site-menu {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .site-menu {
+    display: block;
+  }
+
+  .site-menu__toggle {
+    position: fixed;
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+    z-index: 90;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(244, 201, 95, 0.45);
+    background: rgba(15, 20, 17, 0.88);
+    color: #f4c95f;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(8px);
+  }
+
+  .site-menu__bars {
+    display: grid;
+    gap: 0.32rem;
+    width: 1.15rem;
+  }
+
+  .site-menu__bars span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .site-menu__toggle--open .site-menu__bars span:nth-child(1) {
+    transform: translateY(0.42rem) rotate(45deg);
+  }
+
+  .site-menu__toggle--open .site-menu__bars span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-menu__toggle--open .site-menu__bars span:nth-child(3) {
+    transform: translateY(-0.42rem) rotate(-45deg);
+  }
+
+  .site-menu__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    border: 0;
+    background: rgba(8, 12, 10, 0.55);
+    cursor: pointer;
+  }
+
+  .site-menu__panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 95;
+    display: flex;
+    flex-direction: column;
+    width: min(20rem, 88vw);
+    height: 100%;
+    height: 100dvh;
+    padding:
+      max(4.5rem, calc(env(safe-area-inset-top) + 3.75rem))
+      max(1.1rem, env(safe-area-inset-right))
+      max(1.5rem, env(safe-area-inset-bottom))
+      1.1rem;
+    background: linear-gradient(180deg, #152018 0%, #1a221c 55%, #101612 100%);
+    color: #f7f1e8;
+    border-left: 1px solid rgba(247, 241, 232, 0.1);
+    box-shadow: -18px 0 40px rgba(0, 0, 0, 0.35);
+    transform: translateX(105%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+  }
+
+  .site-menu__panel--open {
+    transform: translateX(0);
+  }
+
+  .site-menu__eyebrow {
+    margin: 0;
+    font-family: 'Outfit', 'Helvetica Neue', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(247, 241, 232, 0.55);
+  }
+
+  .site-menu__brand {
+    margin: 0.35rem 0 1.25rem;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: #f4c95f;
+  }
+
+  .site-menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .site-menu__link {
+    appearance: none;
+    width: 100%;
+    min-height: 3.1rem;
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(247, 241, 232, 0.9);
+    font: inherit;
+    font-family: 'Outfit', 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .site-menu__link:hover,
+  .site-menu__link:focus-visible {
+    background: rgba(247, 241, 232, 0.06);
+    border-color: rgba(247, 241, 232, 0.12);
+  }
+
+  .site-menu__link--featured {
+    background: rgba(244, 201, 95, 0.12);
+    border-color: rgba(244, 201, 95, 0.35);
+    color: #f4c95f;
+    font-weight: 600;
+  }
+
+  .site-menu__home {
+    appearance: none;
+    margin-top: auto;
+    padding: 1.25rem 0 0;
+    border: 0;
+    background: transparent;
+    font-family: 'Outfit', 'Helvetica Neue', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: left;
+    color: #f4c95f;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-menu__panel,
+  .site-menu__bars span {
+    transition: none;
+  }
+}
