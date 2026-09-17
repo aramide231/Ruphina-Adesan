@@ -716,14 +716,6 @@ function Admin() {
 
       <div className="admin__main">
         <header className="admin__topbar">
-          <button
-            type="button"
-            className="admin__menu-btn"
-            onClick={() => setNavOpen((open) => !open)}
-            aria-label="Open sections menu"
-          >
-            Menu
-          </button>
           <div className="admin__topbar-copy">
             <p className="admin__eyebrow">Editing</p>
             <h1 className="admin__title">{TABS.find((item) => item.id === tab)?.label || 'Site content'}</h1>
@@ -736,6 +728,19 @@ function Admin() {
               disabled={saving}
             >
               {saving ? 'Saving…' : 'Save changes'}
+            </button>
+            <button
+              type="button"
+              className={`admin__menu-btn${navOpen ? ' admin__menu-btn--open' : ''}`}
+              onClick={() => setNavOpen((open) => !open)}
+              aria-label={navOpen ? 'Close sections menu' : 'Open sections menu'}
+              aria-expanded={navOpen}
+            >
+              <span className="admin__hamburger" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
             </button>
           </div>
         </header>

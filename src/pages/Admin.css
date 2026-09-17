@@ -607,15 +607,44 @@ video.admin__preview {
     align-items: center;
     justify-content: center;
     appearance: none;
+    width: 3rem;
+    height: 3rem;
+    min-height: 3rem;
+    padding: 0;
     border: 1px solid rgba(26, 34, 28, 0.2);
     background: #fff;
     color: var(--admin-ink);
     font: inherit;
     font-weight: 600;
-    min-height: 2.85rem;
-    padding: 0.65rem 0.9rem;
     cursor: pointer;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .admin__hamburger {
+    display: grid;
+    gap: 0.3rem;
+    width: 1.15rem;
+  }
+
+  .admin__hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .admin__menu-btn--open .admin__hamburger span:nth-child(1) {
+    transform: translateY(0.4rem) rotate(45deg);
+  }
+
+  .admin__menu-btn--open .admin__hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .admin__menu-btn--open .admin__hamburger span:nth-child(3) {
+    transform: translateY(-0.4rem) rotate(-45deg);
   }
 
   .admin__main {
@@ -673,11 +702,31 @@ video.admin__preview {
 
 @media (max-width: 640px) {
   .admin__topbar {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
   }
 
-  .admin__top-actions,
+  .admin__topbar-copy {
+    flex: 1 1 auto;
+  }
+
+  .admin__top-actions {
+    width: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .admin__top-actions .admin__btn {
+    display: none;
+  }
+
+  .admin__top-actions .admin__menu-btn {
+    flex: 0 0 auto;
+  }
+
   .admin__sticky-actions {
     width: 100%;
     display: grid;
@@ -685,7 +734,6 @@ video.admin__preview {
     gap: 0.5rem;
   }
 
-  .admin__top-actions .admin__btn,
   .admin__sticky-actions .admin__btn,
   .admin__sticky-actions .admin__text-link {
     width: 100%;
@@ -696,7 +744,6 @@ video.admin__preview {
   .admin__sticky-actions .admin__text-link {
     display: inline-flex;
     align-items: center;
-    order: 2;
   }
 
   .admin__title {
