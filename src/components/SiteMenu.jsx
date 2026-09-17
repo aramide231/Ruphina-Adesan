@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './SiteMenu.css';
 
@@ -24,11 +25,29 @@ function scrollToHash(hash) {
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function useIsPhoneMenu() {
+  const [show, setShow] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 900px)').matches : true
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 900px)');
+    const onChange = () => setShow(media.matches);
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  return show;
+}
+
 function SiteMenu() {
+  const showMenu = useIsPhoneMenu();
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const location = useLocation();
   const navigate = useNavigate();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     setOpen(false);
@@ -54,6 +73,15 @@ function SiteMenu() {
     const timer = window.setTimeout(() => scrollToHash(location.hash), 120);
     return () => window.clearTimeout(timer);
   }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (!showMenu || isAdmin) {
+      document.documentElement.classList.remove('has-phone-menu');
+      return undefined;
+    }
+    document.documentElement.classList.add('has-phone-menu');
+    return () => document.documentElement.classList.remove('has-phone-menu');
+  }, [showMenu, isAdmin]);
 
   const goTo = (item) => {
     setOpen(false);
@@ -85,8 +113,12 @@ function SiteMenu() {
     navigate(item.href);
   };
 
-  return (
-    <div className="site-menu">
+  if (!showMenu || isAdmin || typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
+    <div className="site-menu site-menu--visible" data-phone-menu="true">
       <div className="site-menu__bar">
         <p className="site-menu__bar-title">Ruphina Ojo Adesan</p>
         <button
@@ -144,7 +176,8 @@ function SiteMenu() {
           ))}
         </ul>
       </nav>
-    </div>
+    </div>,
+    document.body
   );
 }
 

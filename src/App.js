@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ContentProvider } from './content/ContentProvider';
+import SiteMenu from './components/SiteMenu';
 import Home from './pages/Home';
 import LinkTree from './pages/LinkTree';
 import Admin from './pages/Admin';
@@ -9,6 +10,7 @@ function App() {
   return (
     <ContentProvider>
       <BrowserRouter>
+        <SiteMenu />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/links" element={<LinkTree />} />

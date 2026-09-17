@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Ballpit from '../components/Ballpit';
 import MediaFeed from '../components/MediaFeed';
-import SiteMenu from '../components/SiteMenu';
 import { useContent } from '../content/ContentProvider';
 import '../App.css';
 
@@ -67,7 +66,6 @@ function Home() {
 
   return (
     <div className="site">
-      <SiteMenu />
       <section className="hero" aria-label="Welcome">
         <div className="hero__ballpit" aria-hidden="true">
           {showBallpit ? (

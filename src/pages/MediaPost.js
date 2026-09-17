@@ -1,6 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
 import { MediaFeedCard } from '../components/MediaFeed';
-import SiteMenu from '../components/SiteMenu';
 import { useContent } from '../content/ContentProvider';
 import { findMediaPost, postShareUrl } from '../lib/mediaPosts';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
@@ -32,7 +31,6 @@ function MediaPost() {
   if (loading) {
     return (
       <div className="media-post-page">
-        <SiteMenu />
         <p className="media-post-page__status">Loading…</p>
       </div>
     );
@@ -41,7 +39,6 @@ function MediaPost() {
   if (!post) {
     return (
       <div className="media-post-page">
-        <SiteMenu />
         <div className="media-post-page__inner">
           <h1 className="media-post-page__title">Post not found</h1>
           <p className="media-post-page__lede">
@@ -58,7 +55,6 @@ function MediaPost() {
 
   return (
     <div className="media-post-page">
-      <SiteMenu />
       <div className="media-post-page__inner">
         <p className="media-post-page__eyebrow">Media / Posts</p>
         <h1 className="media-post-page__title">
