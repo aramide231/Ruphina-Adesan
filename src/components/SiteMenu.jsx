@@ -83,15 +83,20 @@ function SiteMenu() {
     return () => document.documentElement.classList.remove('has-phone-menu');
   }, [showMenu, isAdmin]);
 
+  const goHome = () => {
+    setOpen(false);
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate('/');
+    }
+  };
+
   const goTo = (item) => {
     setOpen(false);
 
     if (item.home) {
-      if (location.pathname === '/') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        navigate('/');
-      }
+      goHome();
       return;
     }
 
@@ -119,24 +124,32 @@ function SiteMenu() {
 
   return createPortal(
     <div className="site-menu site-menu--visible" data-phone-menu="true">
-      <div className="site-menu__bar">
-        <p className="site-menu__bar-title">Ruphina Ojo Adesan</p>
+      <header className="site-menu__header">
+        <button type="button" className="site-menu__brand-btn" onClick={goHome}>
+          <span className="site-menu__brand-mark" aria-hidden="true">
+            RA
+          </span>
+          <span className="site-menu__brand-text">
+            <span className="site-menu__brand-eyebrow">Evang. Dr.</span>
+            <span className="site-menu__brand-name">Ruphina Ojo Adesan</span>
+          </span>
+        </button>
+
         <button
           type="button"
-          className={`site-menu__toggle${open ? ' site-menu__toggle--open' : ''}`}
+          className={`site-menu__hamburger${open ? ' site-menu__hamburger--open' : ''}`}
           aria-expanded={open}
           aria-controls={panelId}
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen((value) => !value)}
         >
-          <span className="site-menu__bars" aria-hidden="true">
+          <span className="site-menu__hamburger-lines" aria-hidden="true">
             <span />
             <span />
             <span />
           </span>
-          <span className="site-menu__toggle-label">{open ? 'Close' : 'Menu'}</span>
         </button>
-      </div>
+      </header>
 
       {open ? (
         <button
@@ -149,14 +162,22 @@ function SiteMenu() {
 
       <nav
         id={panelId}
-        className={`site-menu__panel${open ? ' site-menu__panel--open' : ''}`}
+        className={`site-menu__drawer${open ? ' site-menu__drawer--open' : ''}`}
         aria-label="Phone menu"
         aria-hidden={!open}
       >
-        <div className="site-menu__panel-head">
+        <div className="site-menu__drawer-head">
           <p className="site-menu__eyebrow">Menu</p>
-          <p className="site-menu__brand">Where do you want to go?</p>
+          <button
+            type="button"
+            className="site-menu__drawer-close"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+          >
+            Close
+          </button>
         </div>
+        <p className="site-menu__drawer-title">Where do you want to go?</p>
 
         <ul className="site-menu__list">
           {MENU_LINKS.map((item) => (
