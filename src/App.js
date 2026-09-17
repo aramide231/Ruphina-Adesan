@@ -3,6 +3,7 @@ import { ContentProvider } from './content/ContentProvider';
 import Home from './pages/Home';
 import LinkTree from './pages/LinkTree';
 import Admin from './pages/Admin';
+import MediaPost from './pages/MediaPost';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/links" element={<LinkTree />} />
+          <Route path="/media/:slug" element={<MediaPost />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </BrowserRouter>

@@ -62,9 +62,22 @@ Until the first successful save, the site uses the built-in defaults in `src/dat
 
 ## Routes
 
-- `/` — home
+- `/` — home (includes Media / Posts feed)
+- `/media/:slug` — individual shareable media post
 - `/links` — link tree
-- `/admin` — content editor (Supabase Auth)
+- `/admin` — content editor (Supabase Auth), including Media / Posts publish tools
+
+## Media / Posts
+
+From **`/admin` → Media / Posts** (or **+ Media post**):
+
+1. Add a caption
+2. Choose a picture or video
+3. Click **Publish media post**
+
+Each post gets a unique share link like `/media/your-caption-abc123`. Use **Share link**, **Edit**, or **Delete** on any published post.
+
+Social crawlers hitting `/media/:slug` receive Open Graph HTML from `/api/media-meta` so WhatsApp/Facebook/X previews can show the post title and image.
 
 ## Scripts
 

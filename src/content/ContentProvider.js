@@ -9,7 +9,8 @@ const ContentContext = createContext({
   error: null,
   refresh: async () => {},
   saveContent: async () => ({ ok: false, error: 'Not ready' }),
-  uploadImage: async () => ({ ok: false, error: 'Not ready' })
+  uploadImage: async () => ({ ok: false, error: 'Not ready' }),
+  uploadMedia: async () => ({ ok: false, error: 'Not ready' })
 });
 
 export function ContentProvider({ children }) {
@@ -92,9 +93,24 @@ export function ContentProvider({ children }) {
       };
     }
 
+    const isVideo =
+      (file.type && file.type.startsWith('video/')) ||
+      /\.(mp4|webm|mov|m4v|avi|mkv|ogv)$/i.test(file.name || '');
+    const maxBytes = isVideo ? 80 * 1024 * 1024 : 12 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      return {
+        ok: false,
+        error: isVideo
+          ? 'That video is too large. Please keep videos under 80MB.'
+          : 'That image is too large. Please keep images under 12MB.'
+      };
+    }
+
     const extension = file.name.includes('.')
       ? file.name.split('.').pop().toLowerCase()
-      : 'jpg';
+      : isVideo
+        ? 'mp4'
+        : 'jpg';
     const path = `${key}-${Date.now()}.${extension}`;
 
     const { error: uploadError } = await supabase.storage
@@ -119,6 +135,8 @@ export function ContentProvider({ children }) {
     return { ok: true, url: publicUrl };
   }, []);
 
+  const uploadMedia = uploadImage;
+
   const value = useMemo(
     () => ({
       content,
@@ -127,7 +145,8 @@ export function ContentProvider({ children }) {
       error,
       refresh,
       saveContent,
-      uploadImage
+      uploadImage,
+      uploadMedia
     }),
     [content, loading, saving, error, refresh, saveContent, uploadImage]
   );

@@ -1,5 +1,16 @@
 {
   "rewrites": [
+    {
+      "source": "/media/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegram|discordbot|embedly|pinterest|slackbot).*"
+        }
+      ],
+      "destination": "/api/media-meta?slug=:slug"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

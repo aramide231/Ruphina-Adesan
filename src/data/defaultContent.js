@@ -1,5 +1,13 @@
 const asset = (path) => `${process.env.PUBLIC_URL || ''}${path}`;
 
+function sortMediaPosts(posts) {
+  return [...(Array.isArray(posts) ? posts : [])].sort((a, b) => {
+    const aTime = new Date(a.createdAt || 0).getTime();
+    const bTime = new Date(b.createdAt || 0).getTime();
+    return bTime - aTime;
+  });
+}
+
 export const defaultContent = {
   hero: {
     eyebrow: 'Evang. Dr. · UK Clergy',
@@ -84,6 +92,11 @@ export const defaultContent = {
       href: '/'
     },
     {
+      id: 'media',
+      name: 'Media / Posts',
+      href: '/#media'
+    },
+    {
       id: 'publications',
       name: 'Wisdom Magazine · Author & Publisher',
       href: '/#publications'
@@ -147,6 +160,11 @@ export const defaultContent = {
     lede: 'Fresh Word for the day — encouragement, scripture, and wisdom for victorious living.'
   },
   dailyWords: [],
+  mediaHeading: {
+    title: 'Media / Posts',
+    lede: 'Photos, videos, and updates — shared in a live feed from Wisdom Ministries UK.'
+  },
+  mediaPosts: [],
   extraSections: []
 };
 
@@ -193,6 +211,10 @@ export function mergeContent(partial) {
       ...defaultContent.dailyWordsHeading,
       ...(partial.dailyWordsHeading || {})
     },
+    mediaHeading: {
+      ...defaultContent.mediaHeading,
+      ...(partial.mediaHeading || {})
+    },
     socials: Array.isArray(partial.socials) ? partial.socials : defaultContent.socials,
     linkTreeLinks: Array.isArray(partial.linkTreeLinks)
       ? partial.linkTreeLinks
@@ -220,14 +242,18 @@ export function mergeContent(partial) {
       body: item.body || '',
       scripture: item.scripture || ''
     })),
-    extraSections: Array.isArray(partial.extraSections)
-      ? partial.extraSections.map((section) => ({
-          id: section.id || `extra-${Date.now()}`,
-          title: section.title || 'New section',
-          lede: section.lede || '',
-          image: section.image || '',
-          imageAlt: section.imageAlt || ''
-        }))
-      : defaultContent.extraSections
+    mediaPosts: sortMediaPosts(
+      normalizeList(partial.mediaPosts, (item) => ({
+        id: item.id || `mp-${Date.now()}`,
+        slug: item.slug || `media-post-${String(item.id || Date.now()).slice(-6)}`,
+        caption: item.caption || '',
+        mediaUrl: item.mediaUrl || '',
+        mediaType: item.mediaType === 'video' ? 'video' : 'image',
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt: item.updatedAt || item.createdAt || new Date().toISOString()
+      }))
+    ),
+    // Old generic sections are retired; keep empty so test/placeholder blocks never show.
+    extraSections: []
   };
 }

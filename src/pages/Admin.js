@@ -2,6 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent } from '../content/ContentProvider';
 import { defaultContent, mergeContent } from '../data/defaultContent';
+import {
+  copyText,
+  createMediaSlug,
+  formatPostDate,
+  getMediaType,
+  postShareUrl,
+  validateMediaFile
+} from '../lib/mediaPosts';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import './Admin.css';
 
@@ -9,6 +17,7 @@ const TABS = [
   { id: 'about', label: 'About' },
   { id: 'sabbath', label: 'Sabbath' },
   { id: 'links', label: 'Links' },
+  { id: 'media', label: 'Media / Posts' },
   { id: 'announcements', label: 'Announcements' },
   { id: 'programs', label: 'Programs & flyers' },
   { id: 'words', label: 'Daily Words' }
@@ -75,6 +84,24 @@ function Admin() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [uploadingKey, setUploadingKey] = useState('');
+  const [mediaCaption, setMediaCaption] = useState('');
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [editingPostId, setEditingPostId] = useState('');
+  const [editCaption, setEditCaption] = useState('');
+  const [editFile, setEditFile] = useState(null);
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState('');
+  const [navOpen, setNavOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mediaFile) {
+      setMediaPreviewUrl('');
+      return undefined;
+    }
+    const url = URL.createObjectURL(mediaFile);
+    setMediaPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [mediaFile]);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
@@ -307,6 +334,166 @@ function Admin() {
     setStatus('Program flyer uploaded. Click Save to publish.');
   };
 
+  const publishMediaPost = async (event) => {
+    event.preventDefault();
+    setStatus('');
+    setError('');
+
+    const check = validateMediaFile(mediaFile);
+    if (!check.ok) {
+      setError(check.error);
+      return;
+    }
+
+    setMediaBusy(true);
+    const id = `mp-${Date.now()}`;
+    const upload = await uploadImage(mediaFile, `media-${id}`);
+
+    if (!upload.ok) {
+      setError(upload.error || 'Media upload failed.');
+      setMediaBusy(false);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const caption = mediaCaption.trim();
+    const post = {
+      id,
+      slug: createMediaSlug(caption || 'media-post', id),
+      caption,
+      mediaUrl: upload.url,
+      mediaType: check.type,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    const nextDraft = {
+      ...draft,
+      mediaPosts: [post, ...(draft.mediaPosts || [])]
+    };
+
+    setDraft(nextDraft);
+    const result = await saveContent(nextDraft);
+    setMediaBusy(false);
+
+    if (!result.ok) {
+      setError(result.error || 'Could not publish post.');
+      return;
+    }
+
+    setMediaCaption('');
+    setMediaFile(null);
+    setStatus('Media post published to the website.');
+    setTab('media');
+    await refresh();
+  };
+
+  const startEditMediaPost = (post) => {
+    setEditingPostId(post.id);
+    setEditCaption(post.caption || '');
+    setEditFile(null);
+    setStatus('');
+    setError('');
+  };
+
+  const cancelEditMediaPost = () => {
+    setEditingPostId('');
+    setEditCaption('');
+    setEditFile(null);
+  };
+
+  const saveMediaPostEdit = async (postId) => {
+    setStatus('');
+    setError('');
+    setMediaBusy(true);
+
+    let mediaUrl;
+    let mediaType;
+    const current = (draft.mediaPosts || []).find((item) => item.id === postId);
+
+    if (!current) {
+      setError('Post not found.');
+      setMediaBusy(false);
+      return;
+    }
+
+    if (editFile) {
+      const check = validateMediaFile(editFile);
+      if (!check.ok) {
+        setError(check.error);
+        setMediaBusy(false);
+        return;
+      }
+      const upload = await uploadImage(editFile, `media-${postId}`);
+      if (!upload.ok) {
+        setError(upload.error || 'Media upload failed.');
+        setMediaBusy(false);
+        return;
+      }
+      mediaUrl = upload.url;
+      mediaType = check.type;
+    }
+
+    const nextPosts = (draft.mediaPosts || []).map((item) =>
+      item.id === postId
+        ? {
+            ...item,
+            caption: editCaption.trim(),
+            mediaUrl: mediaUrl || item.mediaUrl,
+            mediaType: mediaType || item.mediaType,
+            updatedAt: new Date().toISOString()
+          }
+        : item
+    );
+
+    const nextDraft = { ...draft, mediaPosts: nextPosts };
+    setDraft(nextDraft);
+    const result = await saveContent(nextDraft);
+    setMediaBusy(false);
+
+    if (!result.ok) {
+      setError(result.error || 'Could not save post.');
+      return;
+    }
+
+    cancelEditMediaPost();
+    setStatus('Media post updated.');
+    await refresh();
+  };
+
+  const deleteMediaPost = async (postId) => {
+    const confirmed = window.confirm('Delete this media post? This cannot be undone.');
+    if (!confirmed) return;
+
+    setStatus('');
+    setError('');
+    const nextDraft = {
+      ...draft,
+      mediaPosts: (draft.mediaPosts || []).filter((item) => item.id !== postId)
+    };
+    setDraft(nextDraft);
+    const result = await saveContent(nextDraft);
+
+    if (!result.ok) {
+      setError(result.error || 'Could not delete post.');
+      return;
+    }
+
+    if (editingPostId === postId) cancelEditMediaPost();
+    setStatus('Media post deleted.');
+    await refresh();
+  };
+
+  const shareMediaPost = async (post) => {
+    const url = postShareUrl(post.slug);
+    try {
+      await copyText(url);
+      setStatus(`Share link copied: ${url}`);
+    } catch {
+      setError('Could not copy the share link.');
+    }
+  };
+
   const updateLink = (index, key, value) => {
     setDraft((prev) => {
       const linkTreeLinks = prev.linkTreeLinks.map((item, i) =>
@@ -476,61 +663,85 @@ function Admin() {
   }
 
   return (
-    <div className="admin">
-      <header className="admin__top">
-        <div>
-          <p className="admin__eyebrow">Admin</p>
-          <h1 className="admin__title">Edit site content</h1>
+    <div className="admin admin--app">
+      <aside className={`admin__sidebar ${navOpen ? 'admin__sidebar--open' : ''}`}>
+        <div className="admin__brand">
+          <span className="admin__brand-mark" aria-hidden="true">
+            RA
+          </span>
+          <div>
+            <p className="admin__brand-eyebrow">Dashboard</p>
+            <p className="admin__brand-title">Site Admin</p>
+          </div>
         </div>
-        <div className="admin__top-actions">
+
+        <nav className="admin__nav" aria-label="Editor sections">
+          {TABS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={
+                tab === item.id ? 'admin__nav-item admin__nav-item--active' : 'admin__nav-item'
+              }
+              onClick={() => {
+                setTab(item.id);
+                setNavOpen(false);
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="admin__sidebar-foot">
+          <Link className="admin__sidebar-link" to="/" onClick={() => setNavOpen(false)}>
+            View website
+          </Link>
           <button className="admin__btn admin__btn--ghost" type="button" onClick={handleLogout}>
             Log out
           </button>
-          <button
-            className="admin__btn"
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? 'Saving…' : 'Save'}
-          </button>
         </div>
-      </header>
+      </aside>
 
-      {status ? <p className="admin__success">{status}</p> : null}
-      {error ? <p className="admin__error">{error}</p> : null}
+      {navOpen ? (
+        <button
+          type="button"
+          className="admin__nav-scrim"
+          aria-label="Close menu"
+          onClick={() => setNavOpen(false)}
+        />
+      ) : null}
 
-      <div className="admin__publish-bar">
-        <p className="admin__publish-label">Publish new material</p>
-        <div className="admin__publish-actions">
-          <button type="button" className="admin__btn admin__btn--gold" onClick={addAnnouncement}>
-            + Announcement
-          </button>
-          <button type="button" className="admin__btn admin__btn--gold" onClick={addProgram}>
-            + Program flyer
-          </button>
-          <button type="button" className="admin__btn admin__btn--gold" onClick={addDailyWord}>
-            + Daily Word
-          </button>
-        </div>
-      </div>
-
-      <nav className="admin__tabs" aria-label="Editor sections">
-        {TABS.map((item) => (
+      <div className="admin__main">
+        <header className="admin__topbar">
           <button
-            key={item.id}
             type="button"
-            className={
-              tab === item.id ? 'admin__tab admin__tab--active' : 'admin__tab'
-            }
-            onClick={() => setTab(item.id)}
+            className="admin__menu-btn"
+            onClick={() => setNavOpen((open) => !open)}
+            aria-label="Open sections menu"
           >
-            {item.label}
+            Menu
           </button>
-        ))}
-      </nav>
+          <div className="admin__topbar-copy">
+            <p className="admin__eyebrow">Editing</p>
+            <h1 className="admin__title">{TABS.find((item) => item.id === tab)?.label || 'Site content'}</h1>
+          </div>
+          <div className="admin__top-actions">
+            <button
+              className="admin__btn admin__btn--primary"
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          </div>
+        </header>
 
-      <div className="admin__panel">
+        {status ? <p className="admin__success">{status}</p> : null}
+        {error ? <p className="admin__error">{error}</p> : null}
+
+        <div className="admin__panel">
         {tab === 'about' ? (
           <div className="admin__stack">
             <h2 className="admin__section-title">Hero</h2>
@@ -885,6 +1096,185 @@ function Admin() {
           </div>
         ) : null}
 
+        {tab === 'media' ? (
+          <div className="admin__stack">
+            <p className="admin__hint">
+              Publish pictures and videos to the Media / Posts feed. Each post gets a shareable
+              link for WhatsApp, Facebook, X, Telegram, and more. Publishing saves immediately.
+            </p>
+
+            <Field label="Section title on website">
+              <input
+                className="admin__input"
+                value={draft.mediaHeading?.title || ''}
+                onChange={(e) => updateSection('mediaHeading', 'title', e.target.value)}
+              />
+            </Field>
+            <Field label="Section intro">
+              <textarea
+                className="admin__textarea"
+                rows={2}
+                value={draft.mediaHeading?.lede || ''}
+                onChange={(e) => updateSection('mediaHeading', 'lede', e.target.value)}
+              />
+            </Field>
+            <button
+              type="button"
+              className="admin__btn admin__btn--ghost"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : 'Save section title'}
+            </button>
+
+            <h2 className="admin__section-title">Publish new post</h2>
+            <form className="admin__card-block admin__card-block--accent" onSubmit={publishMediaPost}>
+              <p className="admin__badge">Publishes instantly</p>
+              <Field label="Caption / description">
+                <textarea
+                  className="admin__textarea"
+                  rows={4}
+                  value={mediaCaption}
+                  onChange={(e) => setMediaCaption(e.target.value)}
+                  placeholder="Write a caption for this picture or video"
+                />
+              </Field>
+              <Field label="Picture or video">
+                <input
+                  className="admin__file"
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                />
+              </Field>
+              {mediaFile ? (
+                <div className="admin__media-preview">
+                  <p className="admin__status">
+                    Selected: {mediaFile.name} ({getMediaType(mediaFile)})
+                  </p>
+                  {mediaPreviewUrl ? (
+                    getMediaType(mediaFile) === 'video' ? (
+                      <video
+                        className="admin__preview"
+                        src={mediaPreviewUrl}
+                        controls
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      <img
+                        className="admin__preview"
+                        src={mediaPreviewUrl}
+                        alt="Selected media preview"
+                      />
+                    )
+                  ) : null}
+                </div>
+              ) : null}
+              <button
+                className="admin__btn admin__btn--gold"
+                type="submit"
+                disabled={mediaBusy || saving}
+              >
+                {mediaBusy ? 'Publishing…' : 'Publish media post'}
+              </button>
+            </form>
+
+            <h2 className="admin__section-title">Published posts</h2>
+            {(draft.mediaPosts || []).length === 0 ? (
+              <p className="admin__hint">No media posts yet. Publish your first one above.</p>
+            ) : null}
+            {(draft.mediaPosts || []).map((post) => (
+              <div key={post.id} className="admin__card-block">
+                <p className="admin__label">{formatPostDate(post.createdAt)}</p>
+                {post.mediaType === 'video' ? (
+                  <video
+                    className="admin__preview"
+                    src={post.mediaUrl}
+                    controls
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : (
+                  <img
+                    className="admin__preview"
+                    src={post.mediaUrl}
+                    alt={post.caption || 'Media post'}
+                  />
+                )}
+
+                {editingPostId === post.id ? (
+                  <>
+                    <Field label="Edit caption">
+                      <textarea
+                        className="admin__textarea"
+                        rows={4}
+                        value={editCaption}
+                        onChange={(e) => setEditCaption(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Replace picture or video (optional)">
+                      <input
+                        className="admin__file"
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={(e) => setEditFile(e.target.files?.[0] || null)}
+                      />
+                    </Field>
+                    <div className="admin__inline-actions">
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--gold"
+                        disabled={mediaBusy || saving}
+                        onClick={() => saveMediaPostEdit(post.id)}
+                      >
+                        {mediaBusy ? 'Saving…' : 'Save changes'}
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--ghost"
+                        onClick={cancelEditMediaPost}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="admin__hint" style={{ marginTop: 0 }}>
+                      {post.caption || '(No caption)'}
+                    </p>
+                    <p className="admin__status">Link: /media/{post.slug}</p>
+                    <div className="admin__inline-actions">
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--ghost"
+                        onClick={() => startEditMediaPost(post)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--ghost"
+                        onClick={() => shareMediaPost(post)}
+                      >
+                        Share link
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--danger"
+                        onClick={() => deleteMediaPost(post.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         {tab === 'announcements' ? (
           <div className="admin__stack">
             <p className="admin__hint">
@@ -1159,13 +1549,23 @@ function Admin() {
         ) : null}
       </div>
 
-      <div className="admin__sticky-save">
-        <button className="admin__btn" type="button" onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving…' : 'Save changes'}
-        </button>
-        <Link className="admin__text-link" to="/">
-          View website
-        </Link>
+        <div className="admin__sticky-save">
+          <div>
+            <p className="admin__sticky-label">
+              {tab === 'media'
+                ? 'Media posts publish immediately. Use Save for section titles and other pages.'
+                : 'Save when you finish editing this section.'}
+            </p>
+          </div>
+          <div className="admin__sticky-actions">
+            <Link className="admin__text-link" to="/">
+              View website
+            </Link>
+            <button className="admin__btn admin__btn--primary" type="button" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Ballpit from '../components/Ballpit';
+import MediaFeed from '../components/MediaFeed';
 import { useContent } from '../content/ContentProvider';
 import '../App.css';
 
@@ -53,13 +54,14 @@ function Home() {
     socials,
     images,
     imageAlts,
+    mediaHeading,
+    mediaPosts,
     announcementsHeading,
     announcements,
     programsHeading,
     programs,
     dailyWordsHeading,
-    dailyWords,
-    extraSections
+    dailyWords
   } = content;
 
   return (
@@ -184,6 +186,10 @@ function Home() {
         </div>
       </section>
 
+      {(mediaPosts || []).length > 0 ? (
+        <MediaFeed heading={mediaHeading} posts={mediaPosts} />
+      ) : null}
+
       {(announcements || []).length > 0 ? (
         <section className="feed feed--announcements" id="announcements">
           <div className="feed__inner">
@@ -254,29 +260,6 @@ function Home() {
           </div>
         </section>
       ) : null}
-
-      {(extraSections || []).map((section, index) => (
-        <section
-          key={section.id}
-          className={`extra-section ${index % 2 === 0 ? 'extra-section--a' : 'extra-section--b'}`}
-          id={section.id}
-        >
-          <div className="extra-section__inner">
-            <h2 className="extra-section__title">{section.title}</h2>
-            {section.lede ? <p className="extra-section__lede">{section.lede}</p> : null}
-            {section.image ? (
-              <figure className="extra-section__showcase">
-                <img
-                  src={section.image}
-                  alt={section.imageAlt || section.title}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
-            ) : null}
-          </div>
-        </section>
-      ))}
 
       <section className="sabbath" id="sabbath">
         <div className="sabbath__inner">
