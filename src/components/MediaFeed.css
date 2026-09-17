@@ -1,11 +1,14 @@
 .media-feed {
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   padding:
-    var(--section-pad-y)
-    max(var(--page-pad), env(safe-area-inset-right))
-    var(--section-pad-y)
-    max(var(--page-pad), env(safe-area-inset-left));
+    var(--section-pad-y, clamp(2.5rem, 8vw, 7.5rem))
+    max(var(--page-pad, 1.15rem), env(safe-area-inset-right))
+    var(--section-pad-y, clamp(2.5rem, 8vw, 7.5rem))
+    max(var(--page-pad, 1.15rem), env(safe-area-inset-left));
   background: linear-gradient(180deg, #121814 0%, #1a221c 48%, #152018 100%);
 }
 
@@ -16,27 +19,30 @@
 
 .media-feed__title {
   margin: 0 0 1.1rem;
-  font-family: var(--font-display);
+  font-family: var(--font-display, 'Fraunces', Georgia, serif);
   font-weight: 500;
-  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  font-size: clamp(1.65rem, 6.5vw, 2.75rem);
   letter-spacing: -0.02em;
   line-height: 1.15;
-  color: var(--gold);
+  color: var(--gold, #f4c95f);
+  overflow-wrap: anywhere;
 }
 
 .media-feed__lede,
 .media-feed__empty {
   margin: 0 0 1.5rem;
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 3.8vw, 1.1rem);
+  font-family: var(--font-body, 'Outfit', 'Helvetica Neue', sans-serif);
+  font-size: clamp(0.98rem, 3.5vw, 1.1rem);
   font-weight: 300;
   line-height: 1.7;
-  color: var(--mist);
+  color: var(--mist, #e8efe9);
+  overflow-wrap: anywhere;
 }
 
 .media-feed__list {
   display: grid;
   gap: 1rem;
+  width: 100%;
 }
 
 .fb-post {
@@ -44,6 +50,7 @@
   border: 1px solid rgba(247, 241, 232, 0.08);
   overflow: hidden;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  width: 100%;
   max-width: 100%;
 }
 
@@ -69,8 +76,8 @@
   display: grid;
   place-items: center;
   background: rgba(244, 201, 95, 0.14);
-  color: var(--gold);
-  font-family: var(--font-display);
+  color: var(--gold, #f4c95f);
+  font-family: var(--font-display, 'Fraunces', Georgia, serif);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
 }
@@ -82,10 +89,10 @@
 
 .fb-post__author {
   margin: 0;
-  font-family: var(--font-body);
-  font-size: 0.98rem;
+  font-family: var(--font-body, 'Outfit', 'Helvetica Neue', sans-serif);
+  font-size: clamp(0.92rem, 2.8vw, 0.98rem);
   font-weight: 600;
-  color: var(--paper);
+  color: var(--paper, #f7f1e8);
   line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -94,9 +101,10 @@
 
 .fb-post__time {
   margin: 0.15rem 0 0;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Outfit', 'Helvetica Neue', sans-serif);
   font-size: 0.78rem;
   color: rgba(247, 241, 232, 0.58);
+  overflow-wrap: anywhere;
 }
 
 .fb-post__time a {
@@ -107,58 +115,61 @@
 .fb-post__time a:hover,
 .fb-post__time a:focus-visible {
   text-decoration: underline;
-  color: var(--gold);
+  color: var(--gold, #f4c95f);
 }
 
 .fb-post__caption {
   margin: 0;
   padding: 0.35rem 1rem 0.85rem;
-  font-family: var(--font-body);
-  font-size: clamp(0.98rem, 3.5vw, 1.05rem);
+  font-family: var(--font-body, 'Outfit', 'Helvetica Neue', sans-serif);
+  font-size: clamp(0.95rem, 3.2vw, 1.05rem);
   font-weight: 400;
   line-height: 1.55;
   color: rgba(247, 241, 232, 0.92);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .fb-post__media {
   display: block;
   width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
   background: #0f1411;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .fb-post__media--button {
   cursor: zoom-in;
 }
 
-.fb-post__image {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: min(70vh, 40rem);
-  object-fit: cover;
-  background: #0f1411;
-}
-
+.fb-post__image,
 .fb-post__video {
   display: block;
   width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: min(70vh, 40rem);
-  object-fit: contain;
   background: #0f1411;
+}
+
+.fb-post__image {
+  max-height: min(68vh, 38rem);
+  object-fit: cover;
+}
+
+.fb-post__video {
+  max-height: min(68vh, 38rem);
+  object-fit: contain;
 }
 
 .fb-post__toolbar {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35rem;
-  align-items: center;
+  align-items: stretch;
   margin: 0.35rem 0.55rem 0.55rem;
   padding-top: 0.35rem;
   border-top: 1px solid rgba(247, 241, 232, 0.1);
@@ -169,7 +180,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   border: 0;
   background: transparent;
   color: rgba(247, 241, 232, 0.78);
@@ -178,26 +189,54 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .fb-post__tool:hover,
 .fb-post__tool:focus-visible {
   background: rgba(247, 241, 232, 0.06);
-  color: var(--gold);
+  color: var(--gold, #f4c95f);
 }
 
 .fb-post__note {
   grid-column: 1 / -1;
   margin: 0.15rem 0 0;
   padding: 0 0.35rem;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Outfit', 'Helvetica Neue', sans-serif);
   font-size: 0.78rem;
   line-height: 1.35;
-  color: var(--gold);
+  color: var(--gold, #f4c95f);
   text-align: center;
 }
 
+/* Tablets (portrait + landscape) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .media-feed__inner {
+    width: min(100%, 40rem);
+  }
+
+  .fb-post__header,
+  .fb-post__caption {
+    padding-inline: 1.15rem;
+  }
+
+  .fb-post__image,
+  .fb-post__video {
+    max-height: min(62vh, 34rem);
+  }
+
+  .fb-post__tool {
+    min-height: 3rem;
+  }
+}
+
+/* Phones */
 @media (max-width: 640px) {
+  .media-feed {
+    padding-block: clamp(2.25rem, 10vw, 3.5rem);
+  }
+
   .media-feed__inner {
     width: 100%;
   }
@@ -207,26 +246,41 @@
   }
 
   .fb-post__caption {
-    padding-inline: 0.85rem;
+    padding: 0.3rem 0.85rem 0.8rem;
   }
 
   .fb-post__toolbar {
-    margin-inline: 0.35rem;
+    margin: 0.25rem 0.25rem 0.45rem;
+    gap: 0.2rem;
   }
 
   .fb-post__tool {
-    min-height: 2.75rem;
+    min-height: 2.85rem;
     font-size: 0.88rem;
   }
 
   .fb-post__image,
   .fb-post__video {
-    max-height: min(70vh, 72vw);
+    max-height: min(62vh, 78vw);
   }
 }
 
+/* Very small phones */
 @media (max-width: 380px) {
   .fb-post__toolbar {
     grid-template-columns: 1fr;
+  }
+
+  .fb-post__avatar {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+}
+
+/* Short landscape phones / small tablets on side */
+@media (max-height: 500px) and (orientation: landscape) {
+  .fb-post__image,
+  .fb-post__video {
+    max-height: 70vh;
   }
 }

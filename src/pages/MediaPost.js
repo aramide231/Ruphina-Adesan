@@ -3,6 +3,7 @@ import { MediaFeedCard } from '../components/MediaFeed';
 import { useContent } from '../content/ContentProvider';
 import { findMediaPost, postShareUrl } from '../lib/mediaPosts';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
+import '../App.css';
 import './MediaPost.css';
 
 function MediaPost() {
