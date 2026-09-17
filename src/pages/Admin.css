@@ -308,6 +308,51 @@
   color: var(--admin-ink);
   font: inherit;
   font-size: 16px;
+  min-height: 3.1rem;
+}
+
+.admin__file-picker {
+  position: relative;
+  display: block;
+  min-height: 3.25rem;
+}
+
+.admin__file-picker input[type='file'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 16px;
+}
+
+.admin__file-picker-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed rgba(26, 34, 28, 0.35);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+}
+
+.admin__share-row {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin__share-row .admin__input {
+  font-size: 14px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .admin__textarea {
@@ -325,14 +370,24 @@
 
 .admin__btn {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   border: 0;
   padding: 0.85rem 1.15rem;
+  min-height: 2.85rem;
+  box-sizing: border-box;
   background: var(--admin-ink);
   color: var(--admin-paper);
   font: inherit;
   font-size: 0.95rem;
   font-weight: 600;
+  text-decoration: none;
+  text-align: center;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -521,14 +576,21 @@ video.admin__preview {
   .admin__sidebar {
     position: fixed;
     inset: 0 auto 0 0;
-    width: min(18rem, 86vw);
+    width: min(18rem, 88vw);
+    max-width: 20rem;
     transform: translateX(-105%);
     transition: transform 0.25s ease;
     box-shadow: 18px 0 40px rgba(0, 0, 0, 0.28);
+    overscroll-behavior: contain;
   }
 
   .admin__sidebar--open {
     transform: translateX(0);
+  }
+
+  .admin__nav-item {
+    min-height: 3rem;
+    font-size: 1rem;
   }
 
   .admin__nav-scrim {
@@ -542,45 +604,156 @@ video.admin__preview {
 
   .admin__menu-btn {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     appearance: none;
     border: 1px solid rgba(26, 34, 28, 0.2);
     background: #fff;
     color: var(--admin-ink);
     font: inherit;
     font-weight: 600;
+    min-height: 2.85rem;
     padding: 0.65rem 0.9rem;
     cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .admin__main {
+    padding:
+      max(0.75rem, env(safe-area-inset-top))
+      max(0.75rem, env(safe-area-inset-right))
+      max(7.5rem, env(safe-area-inset-bottom))
+      max(0.75rem, env(safe-area-inset-left));
+  }
+
+  .admin__topbar {
+    padding: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .admin__panel {
+    max-width: none;
+  }
+
+  .admin__card-block {
+    padding: 0.95rem;
+  }
+
+  .admin__preview {
+    max-width: 100%;
+    max-height: 16rem;
   }
 
   .admin__sticky-save {
     left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding:
+      0.75rem
+      max(0.75rem, env(safe-area-inset-right))
+      max(0.75rem, env(safe-area-inset-bottom))
+      max(0.75rem, env(safe-area-inset-left));
+  }
+
+  .admin__sticky-label {
+    max-width: none;
+    font-size: 0.82rem;
+  }
+
+  .admin__sticky-actions {
+    width: 100%;
+  }
+
+  .admin__sticky-actions .admin__btn {
+    flex: 1 1 auto;
+    min-height: 3rem;
   }
 }
 
 @media (max-width: 640px) {
   .admin__topbar {
     align-items: stretch;
+    flex-direction: column;
   }
 
   .admin__top-actions,
   .admin__sticky-actions {
     width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
   .admin__top-actions .admin__btn,
-  .admin__sticky-actions .admin__btn {
-    flex: 1 1 auto;
+  .admin__sticky-actions .admin__btn,
+  .admin__sticky-actions .admin__text-link {
+    width: 100%;
+    min-height: 3rem;
+    justify-content: center;
+  }
+
+  .admin__sticky-actions .admin__text-link {
+    display: inline-flex;
+    align-items: center;
+    order: 2;
+  }
+
+  .admin__title {
+    font-size: clamp(1.35rem, 7vw, 1.75rem);
+  }
+
+  .admin__section-title {
+    font-size: 1.15rem;
+  }
+
+  .admin__inline-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
   .admin__inline-actions .admin__btn {
-    flex: 1 1 calc(50% - 0.5rem);
+    width: 100%;
+    min-height: 3.1rem;
     justify-content: center;
     text-align: center;
   }
 
-  .admin__input {
-    font-size: 0.95rem;
+  .admin__btn--danger {
+    align-self: stretch;
+  }
+
+  .admin__input,
+  .admin__textarea,
+  .admin__file {
+    font-size: 16px;
     max-width: 100%;
+  }
+
+  .admin__textarea {
+    min-height: 6.5rem;
+  }
+
+  .admin__share-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin__share-row .admin__btn {
+    width: 100%;
+    min-height: 3.1rem;
+  }
+
+  .admin__hint {
+    font-size: 0.92rem;
+  }
+
+  .admin__row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin__row .admin__btn--danger {
+    width: 100%;
   }
 }
 

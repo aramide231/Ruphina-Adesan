@@ -80,7 +80,21 @@
 
 @media (max-width: 640px) {
   .media-post-page {
+    padding-inline: 0;
     padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .media-post-page__inner {
+    width: 100%;
+  }
+
+  .media-post-page__eyebrow,
+  .media-post-page__title,
+  .media-post-page__lede,
+  .media-post-page__status,
+  .media-post-page__nav {
+    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .media-post-page__title {

@@ -1142,12 +1142,17 @@ function Admin() {
                 />
               </Field>
               <Field label="Picture or video">
-                <input
-                  className="admin__file"
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
-                />
+                <div className="admin__file-picker">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                    aria-label="Choose picture or video"
+                  />
+                  <span className="admin__file-picker-btn">
+                    {mediaFile ? 'Change file' : 'Tap to choose picture or video'}
+                  </span>
+                </div>
               </Field>
               {mediaFile ? (
                 <div className="admin__media-preview">
@@ -1216,13 +1221,23 @@ function Admin() {
                       />
                     </Field>
                     <Field label="Replace picture or video (optional)">
-                      <input
-                        className="admin__file"
-                        type="file"
-                        accept="image/*,video/*"
-                        onChange={(e) => setEditFile(e.target.files?.[0] || null)}
-                      />
+                      <div className="admin__file-picker">
+                        <input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={(e) => setEditFile(e.target.files?.[0] || null)}
+                          aria-label="Replace picture or video"
+                        />
+                        <span className="admin__file-picker-btn">
+                          {editFile ? 'Change replacement file' : 'Tap to replace picture or video'}
+                        </span>
+                      </div>
                     </Field>
+                    {editFile ? (
+                      <p className="admin__status">
+                        New file: {editFile.name} ({getMediaType(editFile)})
+                      </p>
+                    ) : null}
                     <div className="admin__inline-actions">
                       <button
                         type="button"
@@ -1247,12 +1262,21 @@ function Admin() {
                       {post.caption || '(No caption)'}
                     </p>
                     <Field label="Share link (unique post URL)">
-                      <input
-                        className="admin__input"
-                        readOnly
-                        value={postShareUrl(post.slug)}
-                        onFocus={(e) => e.target.select()}
-                      />
+                      <div className="admin__share-row">
+                        <input
+                          className="admin__input"
+                          readOnly
+                          value={postShareUrl(post.slug)}
+                          onFocus={(e) => e.target.select()}
+                        />
+                        <button
+                          type="button"
+                          className="admin__btn admin__btn--gold"
+                          onClick={() => shareMediaPost(post)}
+                        >
+                          Copy share link
+                        </button>
+                      </div>
                     </Field>
                     <div className="admin__inline-actions">
                       <button
@@ -1260,14 +1284,7 @@ function Admin() {
                         className="admin__btn admin__btn--ghost"
                         onClick={() => startEditMediaPost(post)}
                       >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="admin__btn admin__btn--ghost"
-                        onClick={() => shareMediaPost(post)}
-                      >
-                        Copy share link
+                        Edit caption / media
                       </button>
                       <a
                         className="admin__btn admin__btn--ghost"
@@ -1282,7 +1299,7 @@ function Admin() {
                         className="admin__btn admin__btn--danger"
                         onClick={() => deleteMediaPost(post.id)}
                       >
-                        Delete
+                        Delete post
                       </button>
                     </div>
                   </>
