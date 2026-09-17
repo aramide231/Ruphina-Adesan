@@ -3,16 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './SiteMenu.css';
 
 const MENU_LINKS = [
+  { id: 'home', label: 'Home', href: '/', home: true },
+  { id: 'media', label: 'Media / Posts', href: '/#media', featured: true },
   { id: 'about', label: 'About', href: '/#about' },
-  { id: 'media', label: 'Media / Posts', href: '/#media' },
-  { id: 'announcements', label: 'Announcements', href: '/#announcements' },
-  { id: 'programs', label: 'Programs', href: '/#programs' },
-  { id: 'daily-words', label: 'Daily Words', href: '/#daily-words' },
+  { id: 'ministry', label: 'Ministry & work', href: '/#ministry' },
   { id: 'publications', label: 'Wisdom Magazine', href: '/#publications' },
   { id: 'book', label: 'Wisdom Book', href: '/#book' },
+  { id: 'announcements', label: 'Announcements', href: '/#announcements' },
+  { id: 'programs', label: 'Programs & flyers', href: '/#programs' },
+  { id: 'daily-words', label: 'Daily Words', href: '/#daily-words' },
   { id: 'sabbath', label: 'Sabbath Fellowship', href: '/#sabbath' },
-  { id: 'links', label: 'Links', href: '/links', externalRoute: true },
-  { id: 'ministry', label: 'Ministry & work', href: '/#ministry' }
+  { id: 'links', label: 'All Links', href: '/links', externalRoute: true }
 ];
 
 function scrollToHash(hash) {
@@ -50,12 +51,21 @@ function SiteMenu() {
   useEffect(() => {
     if (location.pathname !== '/') return;
     if (!location.hash) return;
-    const timer = window.setTimeout(() => scrollToHash(location.hash), 80);
+    const timer = window.setTimeout(() => scrollToHash(location.hash), 120);
     return () => window.clearTimeout(timer);
   }, [location.pathname, location.hash]);
 
   const goTo = (item) => {
     setOpen(false);
+
+    if (item.home) {
+      if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/');
+      }
+      return;
+    }
 
     if (item.externalRoute) {
       navigate(item.href);
@@ -67,9 +77,7 @@ function SiteMenu() {
     if (location.pathname === '/') {
       if (hash) {
         navigate({ pathname: '/', hash });
-        window.setTimeout(() => scrollToHash(hash), 40);
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.setTimeout(() => scrollToHash(hash), 50);
       }
       return;
     }
@@ -79,20 +87,24 @@ function SiteMenu() {
 
   return (
     <div className="site-menu">
-      <button
-        type="button"
-        className={`site-menu__toggle${open ? ' site-menu__toggle--open' : ''}`}
-        aria-expanded={open}
-        aria-controls={panelId}
-        aria-label={open ? 'Close menu' : 'Open menu'}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span className="site-menu__bars" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-      </button>
+      <div className="site-menu__bar">
+        <p className="site-menu__bar-title">Ruphina Ojo Adesan</p>
+        <button
+          type="button"
+          className={`site-menu__toggle${open ? ' site-menu__toggle--open' : ''}`}
+          aria-expanded={open}
+          aria-controls={panelId}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <span className="site-menu__bars" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="site-menu__toggle-label">{open ? 'Close' : 'Menu'}</span>
+        </button>
+      </div>
 
       {open ? (
         <button
@@ -106,18 +118,21 @@ function SiteMenu() {
       <nav
         id={panelId}
         className={`site-menu__panel${open ? ' site-menu__panel--open' : ''}`}
-        aria-label="Site sections"
+        aria-label="Phone menu"
         aria-hidden={!open}
       >
-        <p className="site-menu__eyebrow">Menu</p>
-        <p className="site-menu__brand">Ruphina Ojo Adesan</p>
+        <div className="site-menu__panel-head">
+          <p className="site-menu__eyebrow">Menu</p>
+          <p className="site-menu__brand">Where do you want to go?</p>
+        </div>
+
         <ul className="site-menu__list">
           {MENU_LINKS.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
                 className={
-                  item.id === 'media'
+                  item.featured
                     ? 'site-menu__link site-menu__link--featured'
                     : 'site-menu__link'
                 }
@@ -128,20 +143,6 @@ function SiteMenu() {
             </li>
           ))}
         </ul>
-        <button
-          type="button"
-          className="site-menu__home"
-          onClick={() => {
-            setOpen(false);
-            if (location.pathname === '/') {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-              navigate('/');
-            }
-          }}
-        >
-          Back to top
-        </button>
       </nav>
     </div>
   );
