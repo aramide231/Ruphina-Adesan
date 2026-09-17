@@ -135,8 +135,6 @@ export function ContentProvider({ children }) {
     return { ok: true, url: publicUrl };
   }, []);
 
-  const uploadMedia = uploadImage;
-
   const value = useMemo(
     () => ({
       content,
@@ -146,7 +144,7 @@ export function ContentProvider({ children }) {
       refresh,
       saveContent,
       uploadImage,
-      uploadMedia
+      uploadMedia: uploadImage
     }),
     [content, loading, saving, error, refresh, saveContent, uploadImage]
   );
